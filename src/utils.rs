@@ -10,7 +10,7 @@ pub fn press_keys(keys: &[VIRTUAL_KEY]) {
     unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 }
 
-pub fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
+fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
     INPUT {
         r#type: INPUT_KEYBOARD,
         Anonymous: INPUT_0 {
