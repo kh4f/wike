@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			h: GetSystemMetrics(SM_CYSCREEN) as i16
 		}).ok();
 		CONFIG.set(Config {
-			volume_scroll_region: ScreenRegion::new(-1, -500, 50, 1000)
+			volume_scroll_region: ScreenRegion::new(-1, -500, 2, 500)
 		}).ok();
 
         let mouse_hook = SetWindowsHookExW(WH_MOUSE_LL, Some(mouse_proc), Some(HINSTANCE::default()), 0)?;
