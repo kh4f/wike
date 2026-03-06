@@ -3,6 +3,15 @@ use windows::Win32::{
     UI::{ WindowsAndMessaging::*, Input::KeyboardAndMouse::* },
 };
 
+struct ScreenRegion { x: i16, y: i16, w: i16, h: i16 }
+
+const VOLUME_SCROLL_REGION: ScreenRegion = ScreenRegion { x: 1917, y: 600, w: 50, h: 1000 };
+
+fn is_inside_region(pt: POINT, area: &ScreenRegion) -> bool {
+	pt.x >= (area.x as i32) && pt.x <= (area.x + area.w) as i32 &&
+	pt.y >= (area.y as i32) && pt.y <= (area.y + area.h) as i32
+}
+
 fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
     INPUT {
         r#type: INPUT_KEYBOARD,
@@ -51,8 +60,10 @@ unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: LPAR
         match w_param.0 as u32 {
             WM_MOUSEWHEEL => {
                 let delta = (info.mouseData >> 16) as i16;
-                press_keys(&[if delta > 0 { VK_VOLUME_UP } else { VK_VOLUME_DOWN }]);
-				return LRESULT(1);
+				if is_inside_region(pt, &VOLUME_SCROLL_REGION) {
+					press_keys(&[if delta > 0 { VK_VOLUME_UP } else { VK_VOLUME_DOWN }]);
+				}
+				return LRESULT(1)
             }
             _ => (),
         }
