@@ -1,10 +1,7 @@
-use windows::Win32::{ Foundation::*, UI::Input::KeyboardAndMouse::* };
-use crate::config::ScreenRegion;
-
-pub fn is_inside_region(pt: POINT, area: &ScreenRegion) -> bool {
-	pt.x >= (area.x as i32) && pt.x <= (area.x + area.w) as i32 &&
-	pt.y >= (area.y as i32) && pt.y <= (area.y + area.h) as i32
-}
+use windows::Win32::UI::Input::KeyboardAndMouse::{
+	VIRTUAL_KEY, INPUT, INPUT_0, KEYBDINPUT, SendInput,
+	INPUT_KEYBOARD, KEYEVENTF_KEYUP, KEYBD_EVENT_FLAGS
+};
 
 pub fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
     INPUT {
