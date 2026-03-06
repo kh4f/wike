@@ -5,7 +5,7 @@ on: { push: { branches-ignore: 'wip/**' } }
 jobs:
   ci:
     name: Checks
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
