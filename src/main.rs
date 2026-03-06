@@ -1,7 +1,33 @@
 use windows::Win32::{
-    Foundation::{HINSTANCE, LPARAM, LRESULT, WPARAM},
-    UI::WindowsAndMessaging::*,
+    Foundation::*,
+    UI::{ WindowsAndMessaging::*, Input::KeyboardAndMouse::* },
 };
+
+fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
+    INPUT {
+        r#type: INPUT_KEYBOARD,
+        Anonymous: INPUT_0 {
+            ki: KEYBDINPUT {
+                wVk: v_key,
+                wScan: 0,
+                dwFlags: if key_up {
+                    KEYEVENTF_KEYUP
+                } else {
+                    KEYBD_EVENT_FLAGS(0)
+                },
+                time: 0,
+                dwExtraInfo: 0,
+            },
+        },
+    }
+}
+
+fn press_keys(keys: &[VIRTUAL_KEY]) {
+    let mut inputs: Vec<INPUT> = Vec::new();
+    inputs.extend(keys.iter().map(|&k| create_input(k, false)));
+    inputs.extend(keys.iter().rev().map(|&k| create_input(k, true)));
+    unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
+}
 
 unsafe extern "system" fn keyboard_proc(n_code: i32, w_param: WPARAM, l_param: LPARAM) -> LRESULT {
     if n_code >= 0 {
@@ -22,8 +48,13 @@ unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: LPAR
         let info = unsafe { &*(l_param.0 as *const MSLLHOOKSTRUCT) };
         let pt = info.pt;
 
-        if w_param.0 as u32 == WM_LBUTTONDOWN {
-            println!("Left button down at ({}, {})", pt.x, pt.y);
+        match w_param.0 as u32 {
+            WM_MOUSEWHEEL => {
+                let delta = (info.mouseData >> 16) as i16;
+                press_keys(&[if delta > 0 { VK_VOLUME_UP } else { VK_VOLUME_DOWN }]);
+				return LRESULT(1);
+            }
+            _ => (),
         }
     }
     unsafe { CallNextHookEx(None, n_code, w_param, l_param) }
