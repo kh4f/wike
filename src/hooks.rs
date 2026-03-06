@@ -2,7 +2,7 @@ use windows::Win32::{
 	Foundation::*,
 	UI::{ Input::KeyboardAndMouse::*, WindowsAndMessaging::* }
 };
-use crate::{ config::VOLUME_SCROLL_REGION, utils::press_keys };
+use crate::{ CONFIG, utils::press_keys };
 
 pub unsafe extern "system" fn keyboard_proc(n_code: i32, w_param: WPARAM, l_param: LPARAM) -> LRESULT {
     if n_code >= 0 {
@@ -26,10 +26,10 @@ pub unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: 
         match w_param.0 as u32 {
             WM_MOUSEWHEEL => {
                 let delta = (info.mouseData >> 16) as i16;
-				if VOLUME_SCROLL_REGION.contains(pt) {
+				if let Some(cfg) = CONFIG.get() && cfg.volume_scroll_region.contains(pt) {
 					press_keys(&[if delta > 0 { VK_VOLUME_UP } else { VK_VOLUME_DOWN }]);
 				}
-				return LRESULT(1)
+			return LRESULT(1)
             }
             _ => (),
         }
