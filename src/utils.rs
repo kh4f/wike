@@ -17,11 +17,7 @@ fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
             ki: KEYBDINPUT {
                 wVk: v_key,
                 wScan: 0,
-                dwFlags: if key_up {
-                    KEYEVENTF_KEYUP
-                } else {
-                    KEYBD_EVENT_FLAGS(0)
-                },
+                dwFlags: if key_up { KEYEVENTF_KEYUP } else { KEYBD_EVENT_FLAGS(0) },
                 time: 0,
                 dwExtraInfo: 0,
             },
