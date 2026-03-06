@@ -3,6 +3,13 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
 	INPUT_KEYBOARD, KEYEVENTF_KEYUP, KEYBD_EVENT_FLAGS
 };
 
+pub fn press_keys(keys: &[VIRTUAL_KEY]) {
+    let mut inputs: Vec<INPUT> = Vec::new();
+    inputs.extend(keys.iter().map(|&k| create_input(k, false)));
+    inputs.extend(keys.iter().rev().map(|&k| create_input(k, true)));
+    unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
+}
+
 pub fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
     INPUT {
         r#type: INPUT_KEYBOARD,
@@ -20,11 +27,4 @@ pub fn create_input(v_key: VIRTUAL_KEY, key_up: bool) -> INPUT {
             },
         },
     }
-}
-
-pub fn press_keys(keys: &[VIRTUAL_KEY]) {
-    let mut inputs: Vec<INPUT> = Vec::new();
-    inputs.extend(keys.iter().map(|&k| create_input(k, false)));
-    inputs.extend(keys.iter().rev().map(|&k| create_input(k, true)));
-    unsafe { SendInput(&inputs, std::mem::size_of::<INPUT>() as i32) };
 }
