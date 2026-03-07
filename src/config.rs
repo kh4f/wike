@@ -1,7 +1,40 @@
-use windows::Win32::Foundation::POINT;
+use windows::Win32::{ Foundation::POINT, UI::Input::KeyboardAndMouse::VIRTUAL_KEY };
 use crate::SCREEN_SIZE;
 
-pub struct Config { pub volume_scroll_region: ScreenRegion }
+pub struct Config {
+	pub rules: Vec<Rule>,
+}
+
+pub struct Rule {
+	pub name: Option<String>,
+	pub enabled: bool,
+    pub trigger: Trigger,
+    pub action: Action,
+    pub consume: Option<bool>,
+}
+
+pub struct Trigger {
+	pub region: ScreenRegion,
+    pub mouse: Option<MouseEvent>,
+    pub kb: Option<Vec<VIRTUAL_KEY>>,
+}
+
+pub struct Action {
+    pub send_keys: Option<Vec<VIRTUAL_KEY>>,
+    pub run_cmd: Option<String>,
+}
+
+#[derive(PartialEq, Copy, Clone)]
+pub enum MouseEvent {
+	LeftUp,
+    LeftDown,
+	RightUp,
+    RightDown,
+    MiddleUp,
+    MiddleDown,
+    WheelUp,
+    WheelDown,
+}
 
 pub struct ScreenSize { pub w: i16, pub h: i16 }
 

@@ -1,8 +1,5 @@
-use windows::Win32::{
-	Foundation::*,
-	UI::{ Input::KeyboardAndMouse::*, WindowsAndMessaging::* }
-};
-use crate::{ CONFIG, utils::press_keys };
+use windows::Win32::{ Foundation::*, UI::WindowsAndMessaging::* };
+use crate::{ CONFIG, config::MouseEvent, utils::press_keys };
 
 pub unsafe extern "system" fn keyboard_proc(n_code: i32, w_param: WPARAM, l_param: LPARAM) -> LRESULT {
     if n_code >= 0 {
@@ -23,16 +20,29 @@ pub unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: 
         let info = unsafe { &*(l_param.0 as *const MSLLHOOKSTRUCT) };
         let pt = info.pt;
 
-        match w_param.0 as u32 {
-            WM_MOUSEWHEEL => {
-                let delta = (info.mouseData >> 16) as i16;
-				if let Some(cfg) = CONFIG.get() && cfg.volume_scroll_region.contains(pt) {
-					press_keys(&[if delta > 0 { VK_VOLUME_UP } else { VK_VOLUME_DOWN }]);
+		let mouse_event = match w_param.0 as u32 {
+			WM_LBUTTONDOWN => Some(MouseEvent::LeftDown),
+			WM_LBUTTONUP => Some(MouseEvent::LeftUp),
+			WM_RBUTTONDOWN => Some(MouseEvent::RightDown),
+			WM_RBUTTONUP => Some(MouseEvent::RightUp),
+			WM_MBUTTONDOWN => Some(MouseEvent::MiddleDown),
+			WM_MBUTTONUP => Some(MouseEvent::MiddleUp),
+			WM_MOUSEWHEEL => Some(if info.mouseData as i32 >> 16 > 0
+				{ MouseEvent::WheelUp } else { MouseEvent::WheelDown }),
+			_ => None
+		};
+
+		if let Some(cfg) = CONFIG.get() {
+			for rule in &cfg.rules {
+				if rule.enabled
+					&& let Some(event) = mouse_event
+					&& rule.trigger.mouse.as_ref() == Some(&event)
+					&& rule.trigger.region.contains(pt)
+					&& let Some(keys) = &rule.action.send_keys {
+					press_keys(keys);
 				}
-			return LRESULT(1)
-            }
-            _ => (),
-        }
+			}
+		}
     }
     unsafe { CallNextHookEx(None, n_code, w_param, l_param) }
 }
