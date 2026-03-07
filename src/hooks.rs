@@ -40,6 +40,7 @@ pub unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: 
 					&& rule.trigger.region.contains(pt)
 					&& let Some(keys) = &rule.action.send_keys {
 					press_keys(keys);
+					if rule.consume.unwrap_or(false) { return LRESULT(1) }
 				}
 			}
 		}
