@@ -15,7 +15,8 @@ pub unsafe extern "system" fn keyboard_proc(n_code: i32, w_param: WPARAM, l_para
 				if rule.enabled
 					&& let Some(key) = rule.trigger.key
 					&& key.0 as u32 == vk_code
-					&& rule.trigger.region.contains(pt) {
+					&& rule.trigger.region.contains(pt)
+				{
 					if let Some(keys) = &rule.action.keys { press_keys(keys); }
 					if let Some(cmd) = &rule.action.cmd { Command::new(cmd).spawn().ok(); }
 					if rule.consume.unwrap_or(false) { return LRESULT(1) }
@@ -48,7 +49,8 @@ pub unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: 
 				if rule.enabled
 					&& let Some(event) = mouse_event
 					&& rule.trigger.mouse.as_ref() == Some(&event)
-					&& rule.trigger.region.contains(pt) {
+					&& rule.trigger.region.contains(pt)
+				{
 					if let Some(keys) = &rule.action.keys { press_keys(keys); }
 					if let Some(cmd) = &rule.action.cmd { Command::new(cmd).spawn().ok(); }
 					if rule.consume.unwrap_or(false) { return LRESULT(1) }
