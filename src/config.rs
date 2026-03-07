@@ -25,7 +25,7 @@ pub struct Action {
     pub cmd: Option<String>,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Deserialize, PartialEq, Copy, Clone)]
 pub enum MouseEvent {
 	LeftUp,
     LeftDown,
