@@ -6,6 +6,7 @@ use std::sync::OnceLock;
 use windows::Win32::{ Foundation::*, UI::{ Input::KeyboardAndMouse::{ VK_VOLUME_DOWN, VK_VOLUME_UP }, WindowsAndMessaging::* } };
 use hooks::{ keyboard_proc, mouse_proc };
 use config::{ Config, ScreenSize, ScreenRegion, Rule, Trigger, Action, MouseEvent };
+use crate::config::OpenAction;
 
 pub static SCREEN_SIZE: OnceLock<ScreenSize> = OnceLock::new();
 pub static CONFIG: OnceLock<Config> = OnceLock::new();
@@ -29,6 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					action: Action {
 						keys: Some(vec![VK_VOLUME_UP]),
 						cmd: None,
+						open: None,
 					},
 					consume: Some(true),
 				},
@@ -43,6 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					action: Action {
 						keys: Some(vec![VK_VOLUME_DOWN]),
 						cmd: None,
+						open: None,
 					},
 					consume: Some(true),
 				},
@@ -50,13 +53,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					name: Some("Quick Explorer".into()),
 					enabled: true,
 					trigger: Trigger {
-						region: ScreenRegion::new(-660, -1, 240, 2),
+						region: ScreenRegion::new(-660, -2, 240, 5),
 						mouse: Some(MouseEvent::LeftDown),
 						key: None,
 					},
 					action: Action {
 						keys: None,
-						cmd: Some("explorer".to_string()),
+						cmd: None,
+						open: Some(OpenAction {
+							target: "explorer.exe".into(),
+							window_class: Some("CabinetWClass".into()),
+						}),
 					},
 					consume: Some(true),
 				}

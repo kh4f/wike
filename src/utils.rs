@@ -1,7 +1,26 @@
-use windows::Win32::UI::Input::KeyboardAndMouse::{
-	VIRTUAL_KEY, INPUT, INPUT_0, KEYBDINPUT, SendInput,
-	INPUT_KEYBOARD, KEYEVENTF_KEYUP, KEYBD_EVENT_FLAGS
+use windows::{
+	core::{HSTRING, w},
+    Win32::UI::{
+        Input::KeyboardAndMouse::{INPUT, INPUT_0, INPUT_KEYBOARD, KEYBD_EVENT_FLAGS, KEYBDINPUT, KEYEVENTF_KEYUP,SendInput, VIRTUAL_KEY},
+        Shell::ShellExecuteW,
+        WindowsAndMessaging::{FindWindowW, IsWindow, SW_RESTORE, SW_SHOW, SetForegroundWindow, ShowWindow},
+    },
 };
+use crate::config::OpenAction;
+
+pub fn open_or_focus_app(open_action: &OpenAction) {
+    unsafe {
+        if let Some(w_class) = &open_action.window_class
+            && let Ok(hwnd) = FindWindowW(&HSTRING::from(w_class), None)
+            && IsWindow(Some(hwnd)).as_bool()
+        {
+            ShowWindow(hwnd, SW_RESTORE);
+            SetForegroundWindow(hwnd);
+            return;
+        }
+        ShellExecuteW(None, w!("open"), &HSTRING::from(&open_action.target), None, None, SW_SHOW);
+    }
+}
 
 pub fn press_keys(keys: &[VIRTUAL_KEY]) {
     let mut inputs: Vec<INPUT> = Vec::new();

@@ -23,6 +23,12 @@ pub struct Trigger {
 pub struct Action {
     pub keys: Option<Vec<VIRTUAL_KEY>>,
     pub cmd: Option<String>,
+    pub open: Option<OpenAction>,
+}
+
+pub struct OpenAction {
+    pub target: String,
+    pub window_class: Option<String>,
 }
 
 #[derive(Deserialize, PartialEq, Copy, Clone)]

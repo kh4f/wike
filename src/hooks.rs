@@ -1,6 +1,6 @@
 use std::process::Command;
-use windows::Win32::{ Foundation::*, UI::WindowsAndMessaging::* };
-use crate::{ CONFIG, config::MouseEvent, utils::press_keys };
+use windows:: Win32::{ Foundation::*, UI:: WindowsAndMessaging::* };
+use crate::{ CONFIG, config::MouseEvent, utils::{ open_or_focus_app, press_keys } };
 
 pub unsafe extern "system" fn keyboard_proc(n_code: i32, w_param: WPARAM, l_param: LPARAM) -> LRESULT {
     if n_code >= 0 {
@@ -19,6 +19,7 @@ pub unsafe extern "system" fn keyboard_proc(n_code: i32, w_param: WPARAM, l_para
 				{
 					if let Some(keys) = &rule.action.keys { press_keys(keys); }
 					if let Some(cmd) = &rule.action.cmd { Command::new(cmd).spawn().ok(); }
+					if let Some(open) = &rule.action.open { open_or_focus_app(open); }
 					if rule.consume.unwrap_or(false) { return LRESULT(1) }
 				}
 			}
@@ -53,6 +54,7 @@ pub unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: 
 				{
 					if let Some(keys) = &rule.action.keys { press_keys(keys); }
 					if let Some(cmd) = &rule.action.cmd { Command::new(cmd).spawn().ok(); }
+					if let Some(open) = &rule.action.open { open_or_focus_app(open); }
 					if rule.consume.unwrap_or(false) { return LRESULT(1) }
 				}
 			}
