@@ -43,8 +43,6 @@ pub enum MouseEvent {
     WheelDown,
 }
 
-pub struct ScreenSize { pub w: i16, pub h: i16 }
-
 pub struct ScreenRegion { pub x: i16, pub y: i16, pub w: i16, pub h: i16 }
 
 impl ScreenRegion {

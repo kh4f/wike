@@ -4,8 +4,10 @@ mod hooks;
 use std::sync::OnceLock;
 use windows::Win32::{ Foundation::*, UI::{ Input::KeyboardAndMouse::{ VK_VOLUME_DOWN, VK_VOLUME_UP }, WindowsAndMessaging::* } };
 use hooks::{ keyboard_proc, mouse_proc };
-use config::{ Config, ScreenSize, ScreenRegion, Rule, Trigger, Action, MouseEvent };
+use config::{ Config, ScreenRegion, Rule, Trigger, Action, MouseEvent };
 use crate::config::OpenAction;
+
+pub struct ScreenSize { w: i16, h: i16 }
 
 pub static SCREEN_SIZE: OnceLock<ScreenSize> = OnceLock::new();
 pub static CONFIG: OnceLock<Config> = OnceLock::new();
