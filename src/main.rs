@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut msg = MSG::default();
         while GetMessageW(&mut msg, None, 0, 0).into() {
-            _ = TranslateMessage(&msg);
+            TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
 
