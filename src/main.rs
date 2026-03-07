@@ -1,5 +1,4 @@
 mod config;
-mod utils;
 mod hooks;
 
 use std::sync::OnceLock;
