@@ -24,11 +24,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					trigger: Trigger {
 						region: ScreenRegion::new(-1, -500, 2, 500),
 						mouse: Some(MouseEvent::WheelUp),
-						kb: None,
+						key: None,
 					},
 					action: Action {
-						send_keys: Some(vec![VK_VOLUME_UP]),
-						run_cmd: None,
+						keys: Some(vec![VK_VOLUME_UP]),
+						cmd: None,
 					},
 					consume: Some(true),
 				},
@@ -38,11 +38,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					trigger: Trigger {
 						region: ScreenRegion::new(-1, -500, 2, 500),
 						mouse: Some(MouseEvent::WheelDown),
-						kb: None,
+						key: None,
 					},
 					action: Action {
-						send_keys: Some(vec![VK_VOLUME_DOWN]),
-						run_cmd: None,
+						keys: Some(vec![VK_VOLUME_DOWN]),
+						cmd: None,
+					},
+					consume: Some(true),
+				},
+				Rule {
+					name: Some("Quick Explorer".to_string()),
+					enabled: true,
+					trigger: Trigger {
+						region: ScreenRegion::new(0, 0, 500, 500),
+						mouse: Some(MouseEvent::LeftDown),
+						key: None,
+					},
+					action: Action {
+						keys: None,
+						cmd: Some("explorer".to_string()),
 					},
 					consume: Some(true),
 				}

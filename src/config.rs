@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use windows::Win32::{ Foundation::POINT, UI::Input::KeyboardAndMouse::VIRTUAL_KEY };
 use crate::SCREEN_SIZE;
 
@@ -16,12 +17,12 @@ pub struct Rule {
 pub struct Trigger {
 	pub region: ScreenRegion,
     pub mouse: Option<MouseEvent>,
-    pub kb: Option<Vec<VIRTUAL_KEY>>,
+    pub key: Option<VIRTUAL_KEY>,
 }
 
 pub struct Action {
-    pub send_keys: Option<Vec<VIRTUAL_KEY>>,
-    pub run_cmd: Option<String>,
+    pub keys: Option<Vec<VIRTUAL_KEY>>,
+    pub cmd: Option<String>,
 }
 
 #[derive(PartialEq, Copy, Clone)]
