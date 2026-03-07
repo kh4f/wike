@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 		CONFIG.set(Config {
 			rules: vec![
 				Rule {
-					name: Some("Volume Scroll (up)".to_string()),
+					name: Some("Volume Scroll (up)".into()),
 					enabled: true,
 					trigger: Trigger {
 						region: ScreenRegion::new(-1, -500, 2, 500),
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					consume: Some(true),
 				},
 				Rule {
-					name: Some("Volume Scroll (down)".to_string()),
+					name: Some("Volume Scroll (down)".into()),
 					enabled: true,
 					trigger: Trigger {
 						region: ScreenRegion::new(-1, -500, 2, 500),
@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					consume: Some(true),
 				},
 				Rule {
-					name: Some("Quick Explorer".to_string()),
+					name: Some("Quick Explorer".into()),
 					enabled: true,
 					trigger: Trigger {
 						region: ScreenRegion::new(-660, -1, 240, 2),
