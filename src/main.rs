@@ -50,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 					name: Some("Quick Explorer".to_string()),
 					enabled: true,
 					trigger: Trigger {
-						region: ScreenRegion::new(0, 0, 500, 500),
+						region: ScreenRegion::new(-660, -1, 240, 2),
 						mouse: Some(MouseEvent::LeftDown),
 						key: None,
 					},
