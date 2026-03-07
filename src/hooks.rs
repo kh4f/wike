@@ -18,19 +18,9 @@ pub unsafe extern "system" fn mouse_proc(n_code: i32, w_param: WPARAM, l_param: 
 		let info = unsafe { &*(l_param.0 as *const MSLLHOOKSTRUCT) };
 		let pt = info.pt;
 
-		let mouse_event = match w_param.0 as u32 {
-			WM_LBUTTONDOWN => Some(MouseEvent::LeftDown),
-			WM_LBUTTONUP => Some(MouseEvent::LeftUp),
-			WM_RBUTTONDOWN => Some(MouseEvent::RightDown),
-			WM_RBUTTONUP => Some(MouseEvent::RightUp),
-			WM_MBUTTONDOWN => Some(MouseEvent::MiddleDown),
-			WM_MBUTTONUP => Some(MouseEvent::MiddleUp),
-			WM_MOUSEWHEEL => Some(if info.mouseData as i32 >> 16 > 0
-				{ MouseEvent::WheelUp } else { MouseEvent::WheelDown }),
-			_ => None
-		};
-
-		if let Some(event) = mouse_event && handle_mouse_event(event, pt) { return LRESULT(1) }
+		if let Some(event) = get_mouse_event(w_param.0 as u32, info.mouseData)
+			&& handle_mouse_event(event, pt)
+		{ return LRESULT(1) }
 	}
 	unsafe { CallNextHookEx(None, n_code, w_param, l_param) }
 }
@@ -71,4 +61,18 @@ fn execute_action(action: &Action) {
     if let Some(keys) = &action.keys { press_keys(keys); }
     if let Some(cmd) = &action.cmd { Command::new(cmd).spawn().ok(); }
     if let Some(open) = &action.open { open_or_focus_app(open); }
+}
+
+fn get_mouse_event(msg: u32, mouse_data: u32) -> Option<MouseEvent> {
+    match msg {
+        WM_LBUTTONDOWN => Some(MouseEvent::LeftDown),
+        WM_LBUTTONUP => Some(MouseEvent::LeftUp),
+        WM_RBUTTONDOWN => Some(MouseEvent::RightDown),
+        WM_RBUTTONUP => Some(MouseEvent::RightUp),
+        WM_MBUTTONDOWN => Some(MouseEvent::MiddleDown),
+        WM_MBUTTONUP => Some(MouseEvent::MiddleUp),
+        WM_MOUSEWHEEL => Some(if mouse_data as i32 >> 16 > 0
+            { MouseEvent::WheelUp } else { MouseEvent::WheelDown }),
+        _ => None
+    }
 }
