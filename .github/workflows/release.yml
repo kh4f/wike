@@ -1,0 +1,40 @@
+name: Release
+
+on: { push: { tags: 'v[0-9]+.[0-9]+.[0-9]+*' } }
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions: { contents: write } # for creating a GitHub release
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Set env variables
+        shell: bash
+        run: echo -e ZIP=${GITHUB_REPOSITORY#*/}-$TAG.zip >> $GITHUB_ENV
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Test
+        run: cargo test
+
+      - name: Create release archive
+        run: Compress-Archive -Path target/release/twike.exe -DestinationPath $env:ZIP
+
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create $env:TAG $env:ZIP --title $env:TAG --draft
