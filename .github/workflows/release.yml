@@ -32,7 +32,7 @@ jobs:
         run: cargo test
 
       - name: Create release archive
-        run: Compress-Archive -Path target/release/twike.exe -DestinationPath $env:ZIP
+        run: Compress-Archive -Path target/release/wike.exe -DestinationPath $env:ZIP
 
       - name: Create GitHub release
         env:

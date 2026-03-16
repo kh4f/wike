@@ -1,9 +1,9 @@
 [package]
-name = "twike"
+name = "wike"
 version = "0.1.0"
 authors = ["Kh4f <kh4f.dev@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/kh4f/twike"
+repository = "https://github.com/kh4f/wike"
 edition = "2024"
 
 [dependencies]
