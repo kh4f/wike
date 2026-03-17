@@ -10,6 +10,11 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+const (
+	SW_RESTORE = 9
+	SW_SHOW    = 5
+)
+
 var (
 	shell32             = windows.NewLazySystemDLL("shell32.dll")
 	SetWindowsHookExW   = user32.NewProc("SetWindowsHookExW").Call
@@ -23,10 +28,29 @@ var (
 	ShellExecuteW       = shell32.NewProc("ShellExecuteW").Call
 )
 
-const (
-	SW_RESTORE = 9
-	SW_SHOW    = 5
-)
+type MSLLHOOKSTRUCT struct {
+	Pt          shared.POINT
+	MouseData   uint32
+	Flags       uint32
+	Time        uint32
+	DwExtraInfo uintptr
+}
+
+type KBDLLHOOKSTRUCT struct {
+	VkCode      uint32
+	ScanCode    uint32
+	Flags       uint32
+	Time        uint32
+	DwExtraInfo uintptr
+}
+
+type KEYBDINPUT struct {
+	WVk         uint16
+	WScan       uint16
+	DwFlags     uint32
+	Time        uint32
+	DwExtraInfo uintptr
+}
 
 func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {

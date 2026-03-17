@@ -1,13 +1,12 @@
 package win
 
 import (
-	"golang.org/x/sys/windows"
+	// "fmt"
+	"time"
+	"wike/internal/config"
 	"wike/internal/shared"
-)
 
-var (
-	user32           = windows.NewLazySystemDLL("user32.dll")
-	GetSystemMetrics = user32.NewProc("GetSystemMetrics").Call
+	"golang.org/x/sys/windows"
 )
 
 const (
@@ -26,35 +25,10 @@ const (
 	SM_CYSCREEN = 1
 )
 
-type MSLLHOOKSTRUCT struct {
-	Pt          shared.POINT
-	MouseData   uint32
-	Flags       uint32
-	Time        uint32
-	DwExtraInfo uintptr
-}
-
-type KBDLLHOOKSTRUCT struct {
-	VkCode      uint32
-	ScanCode    uint32
-	Flags       uint32
-	Time        uint32
-	DwExtraInfo uintptr
-}
-
-type INPUT struct {
-	Type uint32
-	Ki   KEYBDINPUT
-	_    [4]byte
-}
-
-type KEYBDINPUT struct {
-	WVk         uint16
-	WScan       uint16
-	DwFlags     uint32
-	Time        uint32
-	DwExtraInfo uintptr
-}
+var (
+	user32           = windows.NewLazySystemDLL("user32.dll")
+	GetSystemMetrics = user32.NewProc("GetSystemMetrics").Call
+)
 
 var (
 	mouseEventMap = map[uintptr]string{
@@ -75,12 +49,20 @@ var (
 
 func RunMessageLoop() {
 	initScreenSize()
+	config.Cfg.Load()
+
 	SetWindowsHookExW(uintptr(WH_MOUSE_LL), windows.NewCallback(mHook), 0, 0)
 	SetWindowsHookExW(uintptr(WH_KEYBOARD_LL), windows.NewCallback(kHook), 0, 0)
 
-	for {
-		GetMessageW(0, 0, 0, 0)
-	}
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			config.Cfg.ReloadIfModified()
+		}
+	}()
+
+	GetMessageW(0, 0, 0, 0)
 }
 
 func initScreenSize() {

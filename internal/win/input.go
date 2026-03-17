@@ -2,12 +2,18 @@ package win
 
 import "unsafe"
 
-var SendInput = user32.NewProc("SendInput").Call
-
 const (
 	INPUT_KEYBOARD  = 1
 	KEYEVENTF_KEYUP = 0x0002
 )
+
+var SendInput = user32.NewProc("SendInput").Call
+
+type INPUT struct {
+	Type uint32
+	Ki   KEYBDINPUT
+	_    [4]byte
+}
 
 func pressKeys(keys []uint16) {
 	var inputs []INPUT
