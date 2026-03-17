@@ -16,6 +16,8 @@ func main() {
 		cmd = "go build -o Wike.exe ./cmd/wike/main.go"
 	case slices.Contains(os.Args, "--run"):
 		cmd = "go run ./cmd/wike/main.go"
+	case slices.Contains(os.Args, "--fmt"):
+        cmd = "go fmt ./..."
 	case slices.Contains(os.Args, "--release"):
 		cmd = "bunx relion"
 	}
