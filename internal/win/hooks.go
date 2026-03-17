@@ -11,6 +11,18 @@ import (
 )
 
 const (
+	WH_KEYBOARD_LL = 13
+	WH_MOUSE_LL    = 14
+	LLKHF_UP       = 0x80
+
+	WM_MOUSEMOVE   = 0x0200
+	WM_LBUTTONDOWN = 0x0201
+	WM_LBUTTONUP   = 0x0202
+	WM_RBUTTONDOWN = 0x0204
+	WM_RBUTTONUP   = 0x0205
+	WM_MBUTTONDOWN = 0x0207
+	WM_MBUTTONUP   = 0x0208
+
 	SW_RESTORE = 9
 	SW_SHOW    = 5
 )
@@ -26,6 +38,23 @@ var (
 	ShowWindow          = user32.NewProc("ShowWindow").Call
 	SetForegroundWindow = user32.NewProc("SetForegroundWindow").Call
 	ShellExecuteW       = shell32.NewProc("ShellExecuteW").Call
+)
+
+var (
+	mouseEventMap = map[uintptr]string{
+		WM_LBUTTONDOWN: "LeftDown",
+		WM_LBUTTONUP:   "LeftUp",
+		WM_RBUTTONDOWN: "RightDown",
+		WM_RBUTTONUP:   "RightUp",
+		WM_MBUTTONDOWN: "MiddleDown",
+		WM_MBUTTONUP:   "MiddleUp",
+		WM_MOUSEMOVE:   "Move",
+	}
+
+	virtualKeyMap = map[string]uint16{
+		"VK_F13":     0x7C,
+		"VK_CAPITAL": 0x14,
+	}
 )
 
 type MSLLHOOKSTRUCT struct {
@@ -88,13 +117,19 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		info := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		var pt shared.POINT
 		GetCursorPos(uintptr(unsafe.Pointer(&pt)))
-		fmt.Printf("Key event: wParam=0x%X vkCode=0x%X at (%d, %d)\n", wParam, info.VkCode, pt.X, pt.Y)
+		keyEvent := "down"
+		if (info.Flags & LLKHF_UP) != 0 {
+			keyEvent = "up"
+		}
+		fmt.Printf("Key %s: vkCode=0x%X at (%d, %d)\n", keyEvent, info.VkCode, pt.X, pt.Y)
 
 		for _, rule := range config.Cfg.Rules {
 			if !rule.Enabled ||
 				rule.Trigger.Key == nil ||
 				virtualKeyMap[*rule.Trigger.Key] != uint16(info.VkCode) ||
-				rule.Region != nil && !rule.Region.Contains(pt) {
+				rule.Region != nil && !rule.Region.Contains(pt) ||
+				rule.Trigger.Event == nil && keyEvent == "up" ||
+				rule.Trigger.Event != nil && *rule.Trigger.Event != keyEvent {
 				continue
 			}
 

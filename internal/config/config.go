@@ -74,8 +74,9 @@ type Rule struct {
 }
 
 type Trigger struct {
-	Key   *string `json:"key,omitempty"`
 	Mouse *string `json:"mouse,omitempty"`
+	Key   *string `json:"key,omitempty"`
+	Event *string `json:"event,omitempty"`
 }
 
 type Action struct {
