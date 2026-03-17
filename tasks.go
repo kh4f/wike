@@ -17,7 +17,7 @@ func main() {
 	case slices.Contains(os.Args, "-r"):
 		cmd = "go run ./cmd/wike/main.go"
 	case slices.Contains(os.Args, "-f"):
-        cmd = "go fmt ./..."
+		cmd = "go fmt ./..."
 	case slices.Contains(os.Args, "-l"):
 		cmd = "bunx relion"
 	}
