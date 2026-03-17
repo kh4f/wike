@@ -4,7 +4,7 @@ on: { push: { tags: 'v[0-9]+.[0-9]+.[0-9]+*' } }
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions: { contents: write } # for creating a GitHub release
     env:
       TAG: ${{ github.ref_name }}
@@ -12,29 +12,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with: { go-version: 1.26.0 }
+
+      - name: Install windres
+        run: |
+            sudo apt-get install -y binutils-mingw-w64-x86-64
+            sudo ln -s /usr/bin/x86_64-w64-mingw32-windres /usr/local/bin/windres
 
       - name: Set env variables
-        shell: bash
         run: echo -e ZIP=${GITHUB_REPOSITORY#*/}-$TAG.zip >> $GITHUB_ENV
 
       - name: Build
-        run: cargo build --release
-
-      - name: Test
-        run: cargo test
+        run: go run build.go --build
 
       - name: Create release archive
-        run: Compress-Archive -Path target/release/wike.exe -DestinationPath $env:ZIP
+        run: zip $ZIP Wike.exe
 
       - name: Create GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create $env:TAG $env:ZIP --title $env:TAG --draft
+        run: gh release create $TAG $ZIP --title $TAG --draft
