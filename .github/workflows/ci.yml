@@ -19,4 +19,4 @@ jobs:
             sudo ln -s /usr/bin/x86_64-w64-mingw32-windres /usr/local/bin/windres
 
       - name: Build
-        run:  go run build.go --build
+        run:  go run tasks.go --build

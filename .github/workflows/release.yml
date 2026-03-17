@@ -25,7 +25,7 @@ jobs:
         run: echo -e ZIP=${GITHUB_REPOSITORY#*/}-$TAG.zip >> $GITHUB_ENV
 
       - name: Build
-        run: go run build.go --build
+        run: go run tasks.go --build
 
       - name: Create release archive
         run: zip $ZIP Wike.exe
