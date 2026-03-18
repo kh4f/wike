@@ -1,6 +1,21 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.2.0  `](https://github.com/kh4f/wike/compare/v0.1.0...v0.2.0)
+
+### &emsp; 🧨 BREAKING CHANGES
+- **Renamed project to Wike**: the project, binary, and repository are now named `Wike` instead of `Twike`. [🡥](https://github.com/kh4f/wike/commit/9041d8b)
+
+### &emsp; 🎁 Features
+- **Trigger event state support**: you can now specify `event` (down/up) in the `Trigger` config for more precise activation control. [🡥](https://github.com/kh4f/wike/commit/40d9669)
+- **Config file loading & auto-reload**: configuration is now loaded from `config.json`, with changes saved and auto-reloaded every 5 seconds if modified. [🡥](https://github.com/kh4f/wike/commit/9df9575)
+
+### &emsp; ⚙️ Internal
+- **Rewrote from Rust to Go**: the entire application was migrated from Rust to Go, with all core logic and hooks reimplemented. [🡥](https://github.com/kh4f/wike/commit/3cdd0e4)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.1.0...v0.2.0) &ensp;•&ensp; Mar 18, 2026
+
+
 ## &ensp; [` 📦 v0.1.0  `](https://github.com/kh4f/wike/commits/v0.1.0)
 
 ### &emsp; 🎁 Features
