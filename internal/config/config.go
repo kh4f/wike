@@ -115,14 +115,9 @@ type Trigger struct {
 }
 
 type Action struct {
-	Keys []string `json:"keys,omitempty"`
-	Cmd  *string  `json:"cmd,omitempty"`
-	Open *Open    `json:"open,omitempty"`
-}
-
-type Open struct {
-	Target      string  `json:"target"`
-	WindowClass *string `json:"windowClass,omitempty"`
+	Keys   []string `json:"keys,omitempty"`
+	Cmd    *string  `json:"cmd,omitempty"`
+	Launch *string  `json:"launch,omitempty"`
 }
 
 type Region struct {
