@@ -9,13 +9,17 @@ import (
 )
 
 const (
-	SM_CXSCREEN = 0
-	SM_CYSCREEN = 1
+	WH_KEYBOARD_LL = 13
+	WH_MOUSE_LL    = 14
+	SM_CXSCREEN    = 0
+	SM_CYSCREEN    = 1
 )
 
 var (
-	user32           = windows.NewLazySystemDLL("user32.dll")
-	GetSystemMetrics = user32.NewProc("GetSystemMetrics").Call
+	user32            = windows.NewLazySystemDLL("user32.dll")
+	GetSystemMetrics  = user32.NewProc("GetSystemMetrics").Call
+	SetWindowsHookExW = user32.NewProc("SetWindowsHookExW").Call
+	GetMessageW       = user32.NewProc("GetMessageW").Call
 )
 
 func RunMessageLoop() {

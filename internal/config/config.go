@@ -73,10 +73,45 @@ type Rule struct {
 	Consume *bool   `json:"consume,omitempty"`
 }
 
+type MouseButton string
+
+const (
+	LMB   MouseButton = "left"
+	RMB   MouseButton = "right"
+	MMB   MouseButton = "middle"
+	Wheel MouseButton = "wheel"
+	UMB   MouseButton = "unknown"
+)
+
+type TriggerEvent string
+
+const (
+	EventDown    TriggerEvent = "down"
+	EventUp      TriggerEvent = "up"
+	EventMove    TriggerEvent = "move"
+	EventUnknown TriggerEvent = "unknown"
+)
+
+const (
+	WM_LBUTTONDOWN = 0x0201
+	WM_LBUTTONUP   = 0x0202
+	WM_RBUTTONDOWN = 0x0204
+	WM_RBUTTONUP   = 0x0205
+	WM_MBUTTONDOWN = 0x0207
+	WM_MBUTTONUP   = 0x0208
+	WM_MOUSEMOVE   = 0x0200
+	WM_MOUSEWHEEL  = 0x020A
+)
+
+type MouseEvent struct {
+	Button MouseButton
+	Event  TriggerEvent
+}
+
 type Trigger struct {
-	Mouse *string `json:"mouse,omitempty"`
-	Key   *string `json:"key,omitempty"`
-	Event *string `json:"event,omitempty"`
+	Mouse *MouseButton  `json:"mouse,omitempty"`
+	Key   *string       `json:"key,omitempty"`
+	Event *TriggerEvent `json:"event,omitempty"`
 }
 
 type Action struct {
@@ -111,4 +146,31 @@ func NewRegion(x, y, w, h int32) *Region {
 func (r *Region) Contains(pt shared.POINT) bool {
 	return pt.X >= r.X && pt.X < r.X+r.W &&
 		pt.Y >= r.Y && pt.Y < r.Y+r.H
+}
+
+func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
+	switch wParam {
+	case WM_LBUTTONDOWN:
+		return MouseEvent{LMB, EventDown}
+	case WM_LBUTTONUP:
+		return MouseEvent{LMB, EventUp}
+	case WM_RBUTTONDOWN:
+		return MouseEvent{RMB, EventDown}
+	case WM_RBUTTONUP:
+		return MouseEvent{RMB, EventUp}
+	case WM_MBUTTONDOWN:
+		return MouseEvent{MMB, EventDown}
+	case WM_MBUTTONUP:
+		return MouseEvent{MMB, EventUp}
+	case WM_MOUSEMOVE:
+		return MouseEvent{UMB, EventMove}
+	case WM_MOUSEWHEEL:
+		delta := int16(mouseData >> 16)
+		if delta > 0 {
+			return MouseEvent{Wheel, EventUp}
+		}
+		return MouseEvent{Wheel, EventDown}
+	default:
+		return MouseEvent{UMB, EventUnknown}
+	}
 }
