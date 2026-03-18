@@ -121,7 +121,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		if (info.Flags & LLKHF_UP) != 0 {
 			keyEvent = "up"
 		}
-		fmt.Printf("Key %s: vkCode=0x%X at (%d, %d)\n", keyEvent, info.VkCode, pt.X, pt.Y)
+		fmt.Printf("Key %s: wParam=0x%X vkCode=0x%X at (%d, %d)\n", keyEvent, wParam, info.VkCode, pt.X, pt.Y)
 
 		for _, rule := range config.Cfg.Rules {
 			if !rule.Enabled ||
