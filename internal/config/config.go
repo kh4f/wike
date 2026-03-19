@@ -26,6 +26,7 @@ func (c *Config) Load() error {
 	info, _ := os.Stat(path)
 	modTime = info.ModTime().Unix()
 	fmt.Println("Config loaded:", c.toJSON())
+	fmt.Printf("%+v\n", c)
 	return nil
 }
 
@@ -35,6 +36,7 @@ func (c *Config) Save() error {
 		info, _ := os.Stat(path)
 		modTime = info.ModTime().Unix()
 		fmt.Println("Config saved:", c.toJSON())
+		fmt.Printf("%+v\n", c)
 	}
 	return err
 }
@@ -57,20 +59,21 @@ var Cfg = Config{
 		{
 			Name:    "Useful CapsLock",
 			Enabled: true,
-			Trigger: Trigger{Key: shared.Ptr("VK_CAPITAL")},
-			Action:  Action{Keys: []string{"VK_F13"}},
+			Trigger: &Trigger{Key: shared.Ptr("VK_CAPITAL")},
+			Action:  &Action{Keys: []string{"VK_F13"}},
 			Consume: shared.Ptr(true),
 		},
 	},
 }
 
 type Rule struct {
-	Name    string  `json:"name"`
-	Enabled bool    `json:"enabled"`
-	Region  *Region `json:"region,omitempty"`
-	Trigger Trigger `json:"trigger"`
-	Action  Action  `json:"action"`
-	Consume *bool   `json:"consume,omitempty"`
+	Name     string     `json:"name"`
+	Enabled  bool       `json:"enabled"`
+	Region   *Region    `json:"region,omitempty"`
+	Trigger  *Trigger   `json:"trigger,omitempty"`
+	Action   *Action    `json:"action,omitempty"`
+	Bindings *[]Binding `json:"bindings,omitempty"`
+	Consume  *bool      `json:"consume,omitempty"`
 }
 
 type MouseButton string
@@ -79,6 +82,8 @@ const (
 	LMB   MouseButton = "left"
 	RMB   MouseButton = "right"
 	MMB   MouseButton = "middle"
+	X1B   MouseButton = "x1"
+	X2B   MouseButton = "x2"
 	Wheel MouseButton = "wheel"
 	UMB   MouseButton = "unknown"
 )
@@ -101,11 +106,20 @@ const (
 	WM_MBUTTONUP   = 0x0208
 	WM_MOUSEMOVE   = 0x0200
 	WM_MOUSEWHEEL  = 0x020A
+	WM_XBUTTONDOWN = 0x020B
+	WM_XBUTTONUP   = 0x020C
+	XBUTTON1       = 0x10000
+	XBUTTON2       = 0x20000
 )
 
 type MouseEvent struct {
 	Button MouseButton
 	Event  TriggerEvent
+}
+
+type Binding struct {
+	Trigger *Trigger `json:"trigger"`
+	Action  *Action  `json:"action"`
 }
 
 type Trigger struct {
@@ -157,6 +171,16 @@ func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
 		return MouseEvent{MMB, EventDown}
 	case WM_MBUTTONUP:
 		return MouseEvent{MMB, EventUp}
+	case WM_XBUTTONDOWN:
+		if mouseData == XBUTTON1 {
+			return MouseEvent{X1B, EventDown}
+		}
+		return MouseEvent{X2B, EventDown}
+	case WM_XBUTTONUP:
+		if mouseData == XBUTTON1 {
+			return MouseEvent{X1B, EventUp}
+		}
+		return MouseEvent{X2B, EventUp}
 	case WM_MOUSEMOVE:
 		return MouseEvent{UMB, EventMove}
 	case WM_MOUSEWHEEL:

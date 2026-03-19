@@ -21,8 +21,10 @@ var (
 )
 
 var vKCodeMap = map[string]uint16{
-	"VK_F13":     0x7C,
-	"VK_CAPITAL": 0x14,
+	"VK_F13":         0x7C,
+	"VK_CAPITAL":     0x14,
+	"VK_VOLUME_UP":   0xAF,
+	"VK_VOLUME_DOWN": 0xAE,
 }
 
 var revVKCodeMap = func() map[uint16]string {
@@ -57,6 +59,40 @@ type KEYBDINPUT struct {
 	DwExtraInfo uintptr
 }
 
+func processMouseBinding(binding config.Binding, region *config.Region, ruleName string, mouseEvent *config.MouseEvent, pt *shared.POINT) bool {
+	if binding.Trigger == nil || binding.Action == nil {
+		return false
+	}
+	if binding.Trigger.Mouse == nil || *binding.Trigger.Mouse != mouseEvent.Button ||
+		binding.Trigger.Event != nil && *binding.Trigger.Event != mouseEvent.Event {
+		return false
+	}
+	if region != nil && !region.Contains(*pt) {
+		return false
+	}
+
+	fmt.Printf("Rule triggered: '%s' (%d:%d)\n", ruleName, pt.X, pt.Y)
+	executeAction(*binding.Action)
+	return true
+}
+
+func processKeyBinding(binding config.Binding, region *config.Region, ruleName string, keyEvent config.TriggerEvent, keyID string, pt *shared.POINT) bool {
+	if binding.Trigger == nil || binding.Action == nil {
+		return false
+	}
+	if binding.Trigger.Key == nil || *binding.Trigger.Key != keyID ||
+		binding.Trigger.Event != nil && *binding.Trigger.Event != keyEvent {
+		return false
+	}
+	if region != nil && !region.Contains(*pt) {
+		return false
+	}
+
+	fmt.Printf("Rule triggered: '%s' (%d:%d)\n", ruleName, pt.X, pt.Y)
+	executeAction(*binding.Action)
+	return true
+}
+
 func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
 		info := (*MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
@@ -64,23 +100,33 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		mouseEvent := config.ParseMouseEvent(wParam, info.MouseData)
 
 		if mouseEvent.Event != config.EventMove {
-			fmt.Printf("Mouse %s: %s (0x%X; %d:%d)\n", mouseEvent.Event, mouseEvent.Button, wParam, x, y)
+			fmt.Printf("Mouse %s: %s (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent.Event, mouseEvent.Button, wParam, info.MouseData, x, y)
 		}
 
 		for _, rule := range config.Cfg.Rules {
-			if !rule.Enabled ||
-				rule.Trigger.Mouse == nil ||
-				*rule.Trigger.Mouse != mouseEvent.Button ||
-				*rule.Trigger.Event != mouseEvent.Event ||
-				rule.Region != nil && !rule.Region.Contains(info.Pt) {
+			if !rule.Enabled {
 				continue
 			}
 
-			fmt.Printf("Rule triggered: '%s' at (%d, %d)\n", rule.Name, x, y)
+			bindings := []config.Binding{}
+			bindings = append(bindings, config.Binding{
+				Trigger: rule.Trigger,
+				Action:  rule.Action,
+			})
+			if rule.Bindings != nil {
+				bindings = append(bindings, *rule.Bindings...)
+			}
 
-			executeAction(rule.Action)
+			isRuleMatched := false
 
-			if rule.Consume != nil && *rule.Consume {
+			for _, b := range bindings {
+				if processMouseBinding(b, rule.Region, rule.Name, &mouseEvent, &info.Pt) {
+					isRuleMatched = true
+				}
+			}
+
+			if isRuleMatched && rule.Consume != nil && *rule.Consume {
+				fmt.Println("Event consumed")
 				return 1
 			}
 		}
@@ -104,23 +150,32 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			keyEvent = config.EventUp
 		}
 
-		fmt.Printf("Key %s: %s (0x%X; 0x%X; %d:%d)\n", keyEvent, keyID, wParam, info.VkCode, pt.X, pt.Y)
+		fmt.Printf("Key %s: %s (wParam=0x%X; VkCode=0x%X; pt=%d:%d)\n", keyEvent, keyID, wParam, info.VkCode, pt.X, pt.Y)
 
 		for _, rule := range config.Cfg.Rules {
-			if !rule.Enabled ||
-				rule.Trigger.Key == nil ||
-				*rule.Trigger.Key != keyID ||
-				rule.Region != nil && !rule.Region.Contains(pt) ||
-				rule.Trigger.Event == nil && keyEvent == config.EventUp ||
-				rule.Trigger.Event != nil && *rule.Trigger.Event != keyEvent {
+			if !rule.Enabled {
 				continue
 			}
 
-			fmt.Printf("Rule triggered: '%s' at (%d, %d)\n", rule.Name, pt.X, pt.Y)
+			bindings := []config.Binding{}
+			bindings = append(bindings, config.Binding{
+				Trigger: rule.Trigger,
+				Action:  rule.Action,
+			})
+			if rule.Bindings != nil {
+				bindings = append(bindings, *rule.Bindings...)
+			}
 
-			executeAction(rule.Action)
+			isRuleMatched := false
 
-			if rule.Consume != nil && *rule.Consume {
+			for _, b := range bindings {
+				if processKeyBinding(b, rule.Region, rule.Name, keyEvent, keyID, &pt) {
+					isRuleMatched = true
+				}
+			}
+
+			if isRuleMatched && rule.Consume != nil && *rule.Consume {
+				fmt.Println("Event consumed")
 				return 1
 			}
 		}
@@ -131,6 +186,8 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 }
 
 func executeAction(action config.Action) {
+	fmt.Printf("Executing action: %+v\n", action)
+
 	if len(action.Keys) > 0 {
 		var vkeys []uint16
 		for _, keyName := range action.Keys {
@@ -139,15 +196,18 @@ func executeAction(action config.Action) {
 			}
 		}
 		if len(vkeys) > 0 {
+			fmt.Printf("Simulating key press: %v\n", action.Keys)
 			pressKeys(vkeys)
 		}
 	}
 
 	if action.Cmd != nil {
+		fmt.Printf("Executing command: %s\n", *action.Cmd)
 		exec.Command(*action.Cmd).Run()
 	}
 
 	if action.Launch != nil {
+		fmt.Printf("Launching application: %s\n", *action.Launch)
 		openOrFocus(*action.Launch)
 	}
 }
