@@ -30,3 +30,15 @@ type Action struct {
 	Cmd    *string  `json:"cmd,omitempty"`
 	Launch *string  `json:"launch,omitempty"`
 }
+
+func (r Rule) BindingsWithPrimary() []Binding {
+	bindings := make([]Binding, 0, len(r.Bindings)+1)
+	if r.Trigger != nil || r.Action != nil {
+		bindings = append(bindings, Binding{
+			Trigger: r.Trigger,
+			Action:  r.Action,
+		})
+	}
+	bindings = append(bindings, r.Bindings...)
+	return bindings
+}

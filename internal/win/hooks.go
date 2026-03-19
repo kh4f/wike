@@ -49,16 +49,9 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				continue
 			}
 
-			bindings := []config.Binding{}
-			bindings = append(bindings, config.Binding{
-				Trigger: rule.Trigger,
-				Action:  rule.Action,
-			})
-			bindings = append(bindings, rule.Bindings...)
-
 			isRuleMatched := false
 
-			for _, b := range bindings {
+			for _, b := range rule.BindingsWithPrimary() {
 				if b.Trigger == nil || b.Action == nil || b.Trigger.M == nil || *b.Trigger.M != mouseEvent.Btn {
 					continue
 				}
@@ -100,16 +93,9 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				continue
 			}
 
-			bindings := []config.Binding{}
-			bindings = append(bindings, config.Binding{
-				Trigger: rule.Trigger,
-				Action:  rule.Action,
-			})
-			bindings = append(bindings, rule.Bindings...)
-
 			shouldConsume := false
 
-			for _, b := range bindings {
+			for _, b := range rule.BindingsWithPrimary() {
 				if b.Trigger == nil || b.Action == nil || b.Trigger.Kb == nil || *b.Trigger.Kb != kbEvent.Key {
 					continue
 				}
