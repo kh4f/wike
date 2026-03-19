@@ -16,6 +16,8 @@ var (
 	GetCursorPos   = user32.NewProc("GetCursorPos").Call
 )
 
+const LLKHF_INJECTED = 0x10
+
 type MSLLHOOKSTRUCT struct {
 	Pt          shared.POINT
 	MouseData   uint32
@@ -27,6 +29,10 @@ type MSLLHOOKSTRUCT struct {
 func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
 		info := (*MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		if (info.Flags & LLKHF_INJECTED) != 0 {
+			return callNextHook(nCode, wParam, lParam)
+		}
+
 		x, y := info.Pt.X, info.Pt.Y
 		mouseEvent := config.ParseMouseEvent(wParam, info.MouseData)
 
@@ -69,13 +75,16 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		}
 	}
 
-	ret, _, _ := CallNextHookEx(0, uintptr(nCode), wParam, lParam)
-	return ret
+	return callNextHook(nCode, wParam, lParam)
 }
 
 func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
 		info := (*config.KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		if (info.Flags & LLKHF_INJECTED) != 0 {
+			return callNextHook(nCode, wParam, lParam)
+		}
+
 		var pt shared.POINT
 		GetCursorPos(uintptr(unsafe.Pointer(&pt)))
 		kbEvent := config.ParseKbEvent(info)
@@ -117,8 +126,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		}
 	}
 
-	ret, _, _ := CallNextHookEx(0, uintptr(nCode), wParam, lParam)
-	return ret
+	return callNextHook(nCode, wParam, lParam)
 }
 
 func executeAction(action config.Action) {
@@ -137,4 +145,9 @@ func executeAction(action config.Action) {
 		fmt.Printf("Launching application: %s\n", *action.Launch)
 		openOrFocus(*action.Launch)
 	}
+}
+
+func callNextHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
+	ret, _, _ := CallNextHookEx(0, uintptr(nCode), wParam, lParam)
+	return ret
 }
