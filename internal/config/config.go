@@ -18,6 +18,7 @@ type Config struct {
 func (c *Config) Load() error {
 	data, err := os.ReadFile(path)
 	if err != nil {
+		*c = defCfg
 		return c.Save()
 	}
 	*c = Config{}
@@ -54,10 +55,12 @@ func (c *Config) toJSON() string {
 	return string(data)
 }
 
-var Cfg = Config{
+var Cfg Config
+
+var defCfg = Config{
 	Rules: []Rule{
 		{
-			Name:    "Useful CapsLock",
+			Name:    "Default Rule",
 			Enabled: true,
 			Trigger: &Trigger{Key: shared.Ptr("VK_CAPITAL")},
 			Action:  &Action{Keys: []string{"VK_F13"}},
@@ -67,13 +70,13 @@ var Cfg = Config{
 }
 
 type Rule struct {
-	Name     string     `json:"name"`
-	Enabled  bool       `json:"enabled"`
-	Region   *Region    `json:"region,omitempty"`
-	Trigger  *Trigger   `json:"trigger,omitempty"`
-	Action   *Action    `json:"action,omitempty"`
+	Name     string    `json:"name"`
+	Enabled  bool      `json:"enabled"`
+	Region   *Region   `json:"region,omitempty"`
+	Trigger  *Trigger  `json:"trigger,omitempty"`
+	Action   *Action   `json:"action,omitempty"`
 	Bindings []Binding `json:"bindings,omitempty"`
-	Consume  *bool      `json:"consume,omitempty"`
+	Consume  *bool     `json:"consume,omitempty"`
 }
 
 type MouseButton string
