@@ -18,10 +18,10 @@ const (
 type State string
 
 const (
-	EventDown    State = "DOWN"
-	EventUp      State = "UP"
-	EventMove    State = "MOVE"
-	EventUnknown State = "UNKNOWN"
+	StateDown    State = "DOWN"
+	StateUp      State = "UP"
+	StateMove    State = "MOVE"
+	StateUnknown State = "UNKNOWN"
 )
 
 type MouseEvent struct {
@@ -32,37 +32,37 @@ type MouseEvent struct {
 func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
 	switch wParam {
 	case WM_LBUTTONDOWN:
-		return MouseEvent{"LMB", EventDown}
+		return MouseEvent{"LMB", StateDown}
 	case WM_LBUTTONUP:
-		return MouseEvent{"LMB", EventUp}
+		return MouseEvent{"LMB", StateUp}
 	case WM_RBUTTONDOWN:
-		return MouseEvent{"RMB", EventDown}
+		return MouseEvent{"RMB", StateDown}
 	case WM_RBUTTONUP:
-		return MouseEvent{"RMB", EventUp}
+		return MouseEvent{"RMB", StateUp}
 	case WM_MBUTTONDOWN:
-		return MouseEvent{"MMB", EventDown}
+		return MouseEvent{"MMB", StateDown}
 	case WM_MBUTTONUP:
-		return MouseEvent{"MMB", EventUp}
+		return MouseEvent{"MMB", StateUp}
 	case WM_XBUTTONDOWN:
 		if mouseData == XBUTTON1 {
-			return MouseEvent{"X1MB", EventDown}
+			return MouseEvent{"X1MB", StateDown}
 		}
-		return MouseEvent{"X2MB", EventDown}
+		return MouseEvent{"X2MB", StateDown}
 	case WM_XBUTTONUP:
 		if mouseData == XBUTTON1 {
-			return MouseEvent{"X1MB", EventUp}
+			return MouseEvent{"X1MB", StateUp}
 		}
-		return MouseEvent{"X2MB", EventUp}
+		return MouseEvent{"X2MB", StateUp}
 	case WM_MOUSEMOVE:
-		return MouseEvent{"UNKNOWN", EventMove}
+		return MouseEvent{"UNKNOWN", StateMove}
 	case WM_MOUSEWHEEL:
 		delta := int16(mouseData >> 16)
 		if delta > 0 {
-			return MouseEvent{"WHEEL", EventUp}
+			return MouseEvent{"WHEEL", StateUp}
 		}
-		return MouseEvent{"WHEEL", EventDown}
+		return MouseEvent{"WHEEL", StateDown}
 	default:
-		return MouseEvent{"UMB", EventUnknown}
+		return MouseEvent{"UMB", StateUnknown}
 	}
 }
 
@@ -79,9 +79,9 @@ func ParseKbEvent(vkCode uint16, flags uint32) KbEvent {
 		keyID = "UNKNOWN"
 	}
 
-	kbEvent := EventDown
+	kbEvent := StateDown
 	if (flags & LLKHF_UP) != 0 {
-		kbEvent = EventUp
+		kbEvent = StateUp
 	}
 
 	return KbEvent{Key: keyID, Event: kbEvent}

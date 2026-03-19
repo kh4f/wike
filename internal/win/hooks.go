@@ -40,7 +40,7 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		x, y := info.Pt.X, info.Pt.Y
 		mouseEvent := config.ParseMouseEvent(wParam, info.MouseData)
 
-		if mouseEvent.State != config.EventMove {
+		if mouseEvent.State != config.StateMove {
 			fmt.Printf("Mouse event: %+v (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent, wParam, info.MouseData, x, y)
 		}
 
@@ -66,7 +66,7 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				isRuleMatched = true
 
 				if b.Trigger.State != nil && *b.Trigger.State == mouseEvent.State ||
-					b.Trigger.State == nil && mouseEvent.State == config.EventDown {
+					b.Trigger.State == nil && mouseEvent.State == config.StateDown {
 					fmt.Printf("Rule triggered: '%s'\n", rule.Name)
 					executeAction(*b.Action)
 				}
@@ -117,7 +117,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				shouldConsume = true
 
 				if b.Trigger.State != nil && *b.Trigger.State == kbEvent.Event ||
-					b.Trigger.State == nil && kbEvent.Event == config.EventDown {
+					b.Trigger.State == nil && kbEvent.Event == config.StateDown {
 					fmt.Printf("Rule triggered: '%s'\n", rule.Name)
 					executeAction(*b.Action)
 				}
