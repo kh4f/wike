@@ -73,22 +73,14 @@ type KbEvent struct {
 
 const LLKHF_UP = 0x80
 
-type KBDLLHOOKSTRUCT struct {
-	VkCode      uint32
-	ScanCode    uint32
-	Flags       uint32
-	Time        uint32
-	DwExtraInfo uintptr
-}
-
-func ParseKbEvent(info *KBDLLHOOKSTRUCT) KbEvent {
-	keyID, found := RevVKCodeMap[uint16(info.VkCode)]
+func ParseKbEvent(vkCode uint16, flags uint32) KbEvent {
+	keyID, found := RevVKCodeMap[vkCode]
 	if !found {
 		keyID = "UNKNOWN"
 	}
 
 	kbEvent := EventDown
-	if (info.Flags & LLKHF_UP) != 0 {
+	if (flags & LLKHF_UP) != 0 {
 		kbEvent = EventUp
 	}
 

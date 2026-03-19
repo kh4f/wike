@@ -22,6 +22,14 @@ type MSLLHOOKSTRUCT struct {
 	DwExtraInfo uintptr
 }
 
+type KBDLLHOOKSTRUCT struct {
+	VkCode      uint32
+	ScanCode    uint32
+	Flags       uint32
+	Time        uint32
+	DwExtraInfo uintptr
+}
+
 func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
 		info := (*MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
@@ -76,14 +84,14 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
-		info := (*config.KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		info := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		if (info.Flags & LLKHF_INJECTED) != 0 {
 			return callNextHook(nCode, wParam, lParam)
 		}
 
 		var pt shared.Point
 		getCursorPos(uintptr(unsafe.Pointer(&pt)))
-		kbEvent := config.ParseKbEvent(info)
+		kbEvent := config.ParseKbEvent(uint16(info.VkCode), info.Flags)
 
 		fmt.Printf("Key event: %+v (wParam=0x%X; VkCode=0x%X; pt=%d:%d)\n", kbEvent, wParam, info.VkCode, pt.X, pt.Y)
 
