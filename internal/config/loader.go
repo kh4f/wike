@@ -6,21 +6,29 @@ import (
 	"os"
 )
 
-const path = "config.json"
+const configPath = "config.json"
 
 var modTime int64
 
 func (c *Config) Load() error {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(configPath)
 	if err != nil {
-		*c = defCfg
-		return c.Save()
+		if os.IsNotExist(err) {
+			*c = defaultConfig()
+			return c.Save()
+		}
+		return fmt.Errorf("read config: %w", err)
 	}
 
 	*c = Config{}
-	json.Unmarshal(data, c)
+	if err := json.Unmarshal(data, c); err != nil {
+		return fmt.Errorf("parse config: %w", err)
+	}
 
-	info, _ := os.Stat(path)
+	info, err := os.Stat(configPath)
+	if err != nil {
+		return fmt.Errorf("stat config: %w", err)
+	}
 	modTime = info.ModTime().Unix()
 	fmt.Println("Config loaded:", c.toJSON())
 	fmt.Printf("%+v\n", c)
@@ -28,21 +36,35 @@ func (c *Config) Load() error {
 }
 
 func (c *Config) Save() error {
-	err := os.WriteFile(path, []byte(c.toJSON()), 0644)
+	err := os.WriteFile(configPath, []byte(c.toJSON()), 0644)
 	if err == nil {
-		info, _ := os.Stat(path)
+		info, statErr := os.Stat(configPath)
+		if statErr != nil {
+			return fmt.Errorf("stat config after save: %w", statErr)
+		}
 		modTime = info.ModTime().Unix()
 		fmt.Println("Config saved:", c.toJSON())
 		fmt.Printf("%+v\n", c)
+		return nil
 	}
-	return err
+	return fmt.Errorf("write config: %w", err)
 }
 
 func (c *Config) ReloadIfModified() {
-	info, _ := os.Stat(path)
+	info, err := os.Stat(configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return
+		}
+		fmt.Println("Config stat error:", err)
+		return
+	}
+
 	if info.ModTime().Unix() != modTime {
 		fmt.Println("Config modified, reloading...")
-		c.Load()
+		if err := c.Load(); err != nil {
+			fmt.Println("Config reload error:", err)
+		}
 	}
 }
 
