@@ -141,20 +141,16 @@ type Region struct {
 	H int32 `json:"h"`
 }
 
-func NewRegion(x, y, w, h int32) *Region {
-	r := &Region{X: x, Y: y, W: w, H: h}
-	if x < 0 {
-		r.X += int32(shared.ScreenW)
-	}
-	if y < 0 {
-		r.Y += int32(shared.ScreenH)
-	}
-	return r
-}
-
 func (r *Region) Contains(pt shared.POINT) bool {
-	return pt.X >= r.X && pt.X < r.X+r.W &&
-		pt.Y >= r.Y && pt.Y < r.Y+r.H
+	rx, ry := r.X, r.Y
+	if r.X < 0 {
+		rx += int32(shared.ScreenW)
+	}
+	if r.Y < 0 {
+		ry += int32(shared.ScreenH)
+	}
+	return pt.X >= rx && pt.X < rx+r.W &&
+		pt.Y >= ry && pt.Y < ry+r.H
 }
 
 func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
