@@ -72,7 +72,7 @@ type Rule struct {
 	Region   *Region    `json:"region,omitempty"`
 	Trigger  *Trigger   `json:"trigger,omitempty"`
 	Action   *Action    `json:"action,omitempty"`
-	Bindings *[]Binding `json:"bindings,omitempty"`
+	Bindings []Binding `json:"bindings,omitempty"`
 	Consume  *bool      `json:"consume,omitempty"`
 }
 

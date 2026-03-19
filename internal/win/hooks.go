@@ -113,9 +113,7 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				Trigger: rule.Trigger,
 				Action:  rule.Action,
 			})
-			if rule.Bindings != nil {
-				bindings = append(bindings, *rule.Bindings...)
-			}
+			bindings = append(bindings, rule.Bindings...)
 
 			isRuleMatched := false
 
@@ -162,9 +160,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				Trigger: rule.Trigger,
 				Action:  rule.Action,
 			})
-			if rule.Bindings != nil {
-				bindings = append(bindings, *rule.Bindings...)
-			}
+			bindings = append(bindings, rule.Bindings...)
 
 			isRuleMatched := false
 
