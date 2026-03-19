@@ -62,8 +62,8 @@ var defCfg = Config{
 		{
 			Name:    "Default Rule",
 			Enabled: true,
-			Trigger: &Trigger{Key: shared.Ptr("VK_CAPITAL")},
-			Action:  &Action{Keys: []string{"VK_F13"}},
+			Trigger: &Trigger{Kb: shared.Ptr("VK_CAPITAL")},
+			Action:  &Action{Kb: []string{"VK_F13"}},
 			Consume: shared.Ptr(true),
 		},
 	},
@@ -79,27 +79,6 @@ type Rule struct {
 	Consume  *bool     `json:"consume,omitempty"`
 }
 
-type MouseButton string
-
-const (
-	LMB   MouseButton = "left"
-	RMB   MouseButton = "right"
-	MMB   MouseButton = "middle"
-	X1B   MouseButton = "x1"
-	X2B   MouseButton = "x2"
-	Wheel MouseButton = "wheel"
-	UMB   MouseButton = "unknown"
-)
-
-type TriggerEvent string
-
-const (
-	EventDown    TriggerEvent = "down"
-	EventUp      TriggerEvent = "up"
-	EventMove    TriggerEvent = "move"
-	EventUnknown TriggerEvent = "unknown"
-)
-
 const (
 	WM_LBUTTONDOWN = 0x0201
 	WM_LBUTTONUP   = 0x0202
@@ -107,17 +86,120 @@ const (
 	WM_RBUTTONUP   = 0x0205
 	WM_MBUTTONDOWN = 0x0207
 	WM_MBUTTONUP   = 0x0208
-	WM_MOUSEMOVE   = 0x0200
-	WM_MOUSEWHEEL  = 0x020A
 	WM_XBUTTONDOWN = 0x020B
 	WM_XBUTTONUP   = 0x020C
+	WM_MOUSEWHEEL  = 0x020A
+	WM_MOUSEMOVE   = 0x0200
 	XBUTTON1       = 0x10000
 	XBUTTON2       = 0x20000
 )
 
+type State string
+
+const (
+	EventDown    State = "DOWN"
+	EventUp      State = "UP"
+	EventMove    State = "MOVE"
+	EventUnknown State = "UNKNOWN"
+)
+
 type MouseEvent struct {
-	Button MouseButton
-	Event  TriggerEvent
+	Btn   string
+	State State
+}
+
+func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
+	switch wParam {
+	case WM_LBUTTONDOWN:
+		return MouseEvent{"LMB", EventDown}
+	case WM_LBUTTONUP:
+		return MouseEvent{"LMB", EventUp}
+	case WM_RBUTTONDOWN:
+		return MouseEvent{"RMB", EventDown}
+	case WM_RBUTTONUP:
+		return MouseEvent{"RMB", EventUp}
+	case WM_MBUTTONDOWN:
+		return MouseEvent{"MMB", EventDown}
+	case WM_MBUTTONUP:
+		return MouseEvent{"MMB", EventUp}
+	case WM_XBUTTONDOWN:
+		if mouseData == XBUTTON1 {
+			return MouseEvent{"X1MB", EventDown}
+		}
+		return MouseEvent{"X2MB", EventDown}
+	case WM_XBUTTONUP:
+		if mouseData == XBUTTON1 {
+			return MouseEvent{"X1MB", EventUp}
+		}
+		return MouseEvent{"X2MB", EventUp}
+	case WM_MOUSEMOVE:
+		return MouseEvent{"UNKNOWN", EventMove}
+	case WM_MOUSEWHEEL:
+		delta := int16(mouseData >> 16)
+		if delta > 0 {
+			return MouseEvent{"WHEEL", EventUp}
+		}
+		return MouseEvent{"WHEEL", EventDown}
+	default:
+		return MouseEvent{"UMB", EventUnknown}
+	}
+}
+
+const (
+	VK_CAPITAL     = 0x14
+	VK_F13         = 0x7C
+	VK_VOLUME_DOWN = 0xAE
+	VK_VOLUME_UP   = 0xAF
+)
+
+var VKCodeMap = map[string]uint16{
+	"VK_F13":         VK_F13,
+	"VK_CAPITAL":     VK_CAPITAL,
+	"VK_VOLUME_UP":   VK_VOLUME_UP,
+	"VK_VOLUME_DOWN": VK_VOLUME_DOWN,
+}
+
+var RevVKCodeMap = func() map[uint16]string {
+	m := make(map[uint16]string)
+	for k, v := range VKCodeMap {
+		m[v] = k
+	}
+	return m
+}()
+
+type Trigger struct {
+	M     *string `json:"m,omitempty"`
+	Kb    *string `json:"kb,omitempty"`
+	State *State  `json:"state,omitempty"`
+}
+
+type KbEvent struct {
+	Key   string
+	Event State
+}
+
+const (
+	LLKHF_UP = 0x80
+)
+
+type KBDLLHOOKSTRUCT struct {
+	VkCode      uint32
+	ScanCode    uint32
+	Flags       uint32
+	Time        uint32
+	DwExtraInfo uintptr
+}
+
+func ParseKbEvent(info *KBDLLHOOKSTRUCT) KbEvent {
+	keyID, found := RevVKCodeMap[uint16(info.VkCode)]
+	if !found {
+		keyID = "UNKNOWN"
+	}
+	kbEvent := EventDown
+	if (info.Flags & LLKHF_UP) != 0 {
+		kbEvent = EventUp
+	}
+	return KbEvent{Key: keyID, Event: kbEvent}
 }
 
 type Binding struct {
@@ -125,14 +207,8 @@ type Binding struct {
 	Action  *Action  `json:"action"`
 }
 
-type Trigger struct {
-	Mouse *MouseButton  `json:"mouse,omitempty"`
-	Key   *string       `json:"key,omitempty"`
-	Event *TriggerEvent `json:"event,omitempty"`
-}
-
 type Action struct {
-	Keys   []string `json:"keys,omitempty"`
+	Kb     []string `json:"kb,omitempty"`
 	Cmd    *string  `json:"cmd,omitempty"`
 	Launch *string  `json:"launch,omitempty"`
 }
@@ -154,41 +230,4 @@ func (r *Region) Contains(pt shared.POINT) bool {
 	}
 	return pt.X >= rx && pt.X < rx+r.W &&
 		pt.Y >= ry && pt.Y < ry+r.H
-}
-
-func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
-	switch wParam {
-	case WM_LBUTTONDOWN:
-		return MouseEvent{LMB, EventDown}
-	case WM_LBUTTONUP:
-		return MouseEvent{LMB, EventUp}
-	case WM_RBUTTONDOWN:
-		return MouseEvent{RMB, EventDown}
-	case WM_RBUTTONUP:
-		return MouseEvent{RMB, EventUp}
-	case WM_MBUTTONDOWN:
-		return MouseEvent{MMB, EventDown}
-	case WM_MBUTTONUP:
-		return MouseEvent{MMB, EventUp}
-	case WM_XBUTTONDOWN:
-		if mouseData == XBUTTON1 {
-			return MouseEvent{X1B, EventDown}
-		}
-		return MouseEvent{X2B, EventDown}
-	case WM_XBUTTONUP:
-		if mouseData == XBUTTON1 {
-			return MouseEvent{X1B, EventUp}
-		}
-		return MouseEvent{X2B, EventUp}
-	case WM_MOUSEMOVE:
-		return MouseEvent{UMB, EventMove}
-	case WM_MOUSEWHEEL:
-		delta := int16(mouseData >> 16)
-		if delta > 0 {
-			return MouseEvent{Wheel, EventUp}
-		}
-		return MouseEvent{Wheel, EventDown}
-	default:
-		return MouseEvent{UMB, EventUnknown}
-	}
 }

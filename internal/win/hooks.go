@@ -10,30 +10,11 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-const (
-	LLKHF_UP = 0x80
-)
-
 var (
 	shell32        = windows.NewLazySystemDLL("shell32.dll")
 	CallNextHookEx = user32.NewProc("CallNextHookEx").Call
 	GetCursorPos   = user32.NewProc("GetCursorPos").Call
 )
-
-var vKCodeMap = map[string]uint16{
-	"VK_F13":         0x7C,
-	"VK_CAPITAL":     0x14,
-	"VK_VOLUME_UP":   0xAF,
-	"VK_VOLUME_DOWN": 0xAE,
-}
-
-var revVKCodeMap = func() map[uint16]string {
-	m := make(map[uint16]string)
-	for k, v := range vKCodeMap {
-		m[v] = k
-	}
-	return m
-}()
 
 type MSLLHOOKSTRUCT struct {
 	Pt          shared.POINT
@@ -43,68 +24,18 @@ type MSLLHOOKSTRUCT struct {
 	DwExtraInfo uintptr
 }
 
-type KBDLLHOOKSTRUCT struct {
-	VkCode      uint32
-	ScanCode    uint32
-	Flags       uint32
-	Time        uint32
-	DwExtraInfo uintptr
-}
-
-type KEYBDINPUT struct {
-	WVk         uint16
-	WScan       uint16
-	DwFlags     uint32
-	Time        uint32
-	DwExtraInfo uintptr
-}
-
-func processMouseBinding(binding config.Binding, region *config.Region, ruleName string, mouseEvent *config.MouseEvent, pt *shared.POINT) bool {
-	if binding.Trigger == nil || binding.Action == nil {
-		return false
-	}
-	if binding.Trigger.Mouse == nil || *binding.Trigger.Mouse != mouseEvent.Button ||
-		binding.Trigger.Event != nil && *binding.Trigger.Event != mouseEvent.Event {
-		return false
-	}
-	if region != nil && !region.Contains(*pt) {
-		return false
-	}
-
-	fmt.Printf("Rule triggered: '%s' (%d:%d)\n", ruleName, pt.X, pt.Y)
-	executeAction(*binding.Action)
-	return true
-}
-
-func processKeyBinding(binding config.Binding, region *config.Region, ruleName string, keyEvent config.TriggerEvent, keyID string, pt *shared.POINT) bool {
-	if binding.Trigger == nil || binding.Action == nil {
-		return false
-	}
-	if binding.Trigger.Key == nil || *binding.Trigger.Key != keyID ||
-		binding.Trigger.Event != nil && *binding.Trigger.Event != keyEvent {
-		return false
-	}
-	if region != nil && !region.Contains(*pt) {
-		return false
-	}
-
-	fmt.Printf("Rule triggered: '%s' (%d:%d)\n", ruleName, pt.X, pt.Y)
-	executeAction(*binding.Action)
-	return true
-}
-
 func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
 		info := (*MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		x, y := info.Pt.X, info.Pt.Y
 		mouseEvent := config.ParseMouseEvent(wParam, info.MouseData)
 
-		if mouseEvent.Event != config.EventMove {
-			fmt.Printf("Mouse %s: %s (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent.Event, mouseEvent.Button, wParam, info.MouseData, x, y)
+		if mouseEvent.State != config.EventMove {
+			fmt.Printf("Mouse event: %+v (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent, wParam, info.MouseData, x, y)
 		}
 
 		for _, rule := range config.Cfg.Rules {
-			if !rule.Enabled {
+			if !rule.Enabled || rule.Region != nil && !rule.Region.Contains(info.Pt) {
 				continue
 			}
 
@@ -118,8 +49,16 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			isRuleMatched := false
 
 			for _, b := range bindings {
-				if processMouseBinding(b, rule.Region, rule.Name, &mouseEvent, &info.Pt) {
-					isRuleMatched = true
+				if b.Trigger == nil || b.Action == nil || b.Trigger.M == nil || *b.Trigger.M != mouseEvent.Btn {
+					continue
+				}
+
+				isRuleMatched = true
+
+				if b.Trigger.State != nil && *b.Trigger.State == mouseEvent.State ||
+					b.Trigger.State == nil && mouseEvent.State == config.EventDown {
+					fmt.Printf("Rule triggered: '%s'\n", rule.Name)
+					executeAction(*b.Action)
 				}
 			}
 
@@ -136,19 +75,12 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	if nCode >= 0 {
-		info := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		info := (*config.KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		var pt shared.POINT
 		GetCursorPos(uintptr(unsafe.Pointer(&pt)))
-		keyID, found := revVKCodeMap[uint16(info.VkCode)]
-		if !found {
-			keyID = "unknown"
-		}
-		keyEvent := config.EventDown
-		if (info.Flags & LLKHF_UP) != 0 {
-			keyEvent = config.EventUp
-		}
+		kbEvent := config.ParseKbEvent(info)
 
-		fmt.Printf("Key %s: %s (wParam=0x%X; VkCode=0x%X; pt=%d:%d)\n", keyEvent, keyID, wParam, info.VkCode, pt.X, pt.Y)
+		fmt.Printf("Key event: %+v (wParam=0x%X; VkCode=0x%X; pt=%d:%d)\n", kbEvent, wParam, info.VkCode, pt.X, pt.Y)
 
 		for _, rule := range config.Cfg.Rules {
 			if !rule.Enabled {
@@ -162,15 +94,23 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			})
 			bindings = append(bindings, rule.Bindings...)
 
-			isRuleMatched := false
+			shouldConsume := false
 
 			for _, b := range bindings {
-				if processKeyBinding(b, rule.Region, rule.Name, keyEvent, keyID, &pt) {
-					isRuleMatched = true
+				if b.Trigger == nil || b.Action == nil || b.Trigger.Kb == nil || *b.Trigger.Kb != kbEvent.Key {
+					continue
+				}
+
+				shouldConsume = true
+
+				if b.Trigger.State != nil && *b.Trigger.State == kbEvent.Event ||
+					b.Trigger.State == nil && kbEvent.Event == config.EventDown {
+					fmt.Printf("Rule triggered: '%s'\n", rule.Name)
+					executeAction(*b.Action)
 				}
 			}
 
-			if isRuleMatched && rule.Consume != nil && *rule.Consume {
+			if shouldConsume && rule.Consume != nil && *rule.Consume {
 				fmt.Println("Event consumed")
 				return 1
 			}
@@ -184,17 +124,8 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 func executeAction(action config.Action) {
 	fmt.Printf("Executing action: %+v\n", action)
 
-	if len(action.Keys) > 0 {
-		var vkeys []uint16
-		for _, keyName := range action.Keys {
-			if code, ok := vKCodeMap[keyName]; ok {
-				vkeys = append(vkeys, code)
-			}
-		}
-		if len(vkeys) > 0 {
-			fmt.Printf("Simulating key press: %v\n", action.Keys)
-			pressKeys(vkeys)
-		}
+	if len(action.Kb) > 0 {
+		sendKeys(action.Kb, true, true)
 	}
 
 	if action.Cmd != nil {
