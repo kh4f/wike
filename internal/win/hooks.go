@@ -5,14 +5,11 @@ import (
 	"unsafe"
 	"wike/internal/config"
 	"wike/internal/shared"
-
-	"golang.org/x/sys/windows"
 )
 
 var (
-	shell32        = windows.NewLazySystemDLL("shell32.dll")
-	CallNextHookEx = user32.NewProc("CallNextHookEx").Call
-	GetCursorPos   = user32.NewProc("GetCursorPos").Call
+	callNextHookEx = user32.NewProc("CallNextHookEx").Call
+	getCursorPos   = user32.NewProc("GetCursorPos").Call
 )
 
 const LLKHF_INJECTED = 0x10
@@ -85,7 +82,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		}
 
 		var pt shared.Point
-		GetCursorPos(uintptr(unsafe.Pointer(&pt)))
+		getCursorPos(uintptr(unsafe.Pointer(&pt)))
 		kbEvent := config.ParseKbEvent(info)
 
 		fmt.Printf("Key event: %+v (wParam=0x%X; VkCode=0x%X; pt=%d:%d)\n", kbEvent, wParam, info.VkCode, pt.X, pt.Y)
@@ -129,6 +126,6 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 }
 
 func callNextHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
-	ret, _, _ := CallNextHookEx(0, uintptr(nCode), wParam, lParam)
+	ret, _, _ := callNextHookEx(0, uintptr(nCode), wParam, lParam)
 	return ret
 }

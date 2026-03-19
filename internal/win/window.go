@@ -18,10 +18,10 @@ const (
 var (
 	getClassNameW       = user32.NewProc("GetClassNameW").Call
 	getWindowTextW      = user32.NewProc("GetWindowTextW").Call
-	IsWindowVisible     = user32.NewProc("IsWindowVisible").Call
-	ShowWindow          = user32.NewProc("ShowWindow").Call
-	SetForegroundWindow = user32.NewProc("SetForegroundWindow").Call
-	ShellExecuteW       = shell32.NewProc("ShellExecuteW").Call
+	isWindowVisible     = user32.NewProc("IsWindowVisible").Call
+	showWindow          = user32.NewProc("ShowWindow").Call
+	setForegroundWindow = user32.NewProc("SetForegroundWindow").Call
+	shellExecuteW       = shell32.NewProc("ShellExecuteW").Call
 )
 
 func openOrFocus(proc string) {
@@ -122,8 +122,8 @@ func shouldFocusWindow(hwnd windows.HWND, className, title string) bool {
 		return false
 	}
 
-	visible := windows.IsWindowVisible(hwnd)
-	if !visible {
+	visible, _, _ := isWindowVisible(uintptr(hwnd))
+	if visible == 0 {
 		return false
 	}
 
@@ -136,7 +136,7 @@ func shouldFocusWindow(hwnd windows.HWND, className, title string) bool {
 }
 
 func openWindow(path string) {
-	ShellExecuteW(
+	shellExecuteW(
 		0,
 		uintptr(unsafe.Pointer(utf16("open"))),
 		uintptr(unsafe.Pointer(utf16(path))),
@@ -150,8 +150,8 @@ func focusWindow(hwnd windows.HWND) {
 	if hwnd != 0 {
 		isWindow := windows.IsWindow(hwnd)
 		if isWindow {
-			ShowWindow(uintptr(hwnd), uintptr(SW_RESTORE))
-			SetForegroundWindow(uintptr(hwnd))
+			showWindow(uintptr(hwnd), uintptr(SW_RESTORE))
+			setForegroundWindow(uintptr(hwnd))
 		}
 	}
 }

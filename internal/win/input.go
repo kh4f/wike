@@ -11,7 +11,7 @@ const (
 	KEYEVENTF_KEYUP = 0x0002
 )
 
-var SendInput = user32.NewProc("SendInput").Call
+var sendInput = user32.NewProc("SendInput").Call
 
 type INPUT struct {
 	Type uint32
@@ -54,7 +54,7 @@ func sendKeys(keys []string, press bool, release bool) {
 		}
 	}
 
-	SendInput(
+	sendInput(
 		uintptr(len(inputs)),
 		uintptr(unsafe.Pointer(&inputs[0])),
 		uintptr(unsafe.Sizeof(inputs[0])),

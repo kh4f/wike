@@ -14,24 +14,23 @@ const (
 )
 
 var (
-	user32            = windows.NewLazySystemDLL("user32.dll")
-	GetSystemMetrics  = user32.NewProc("GetSystemMetrics").Call
-	SetWindowsHookExW = user32.NewProc("SetWindowsHookExW").Call
-	GetMessageW       = user32.NewProc("GetMessageW").Call
+	getSystemMetrics  = user32.NewProc("GetSystemMetrics").Call
+	setWindowsHookExW = user32.NewProc("SetWindowsHookExW").Call
+	getMessageW       = user32.NewProc("GetMessageW").Call
 )
 
 func InstallHooks() {
-	SetWindowsHookExW(uintptr(WH_MOUSE_LL), windows.NewCallback(mHook), 0, 0)
-	SetWindowsHookExW(uintptr(WH_KEYBOARD_LL), windows.NewCallback(kHook), 0, 0)
+	setWindowsHookExW(uintptr(WH_MOUSE_LL), windows.NewCallback(mHook), 0, 0)
+	setWindowsHookExW(uintptr(WH_KEYBOARD_LL), windows.NewCallback(kHook), 0, 0)
 }
 
 func RunMessageLoop() {
-	GetMessageW(0, 0, 0, 0)
+	getMessageW(0, 0, 0, 0)
 }
 
 func InitScreenSize() {
-	w, _, _ := GetSystemMetrics(uintptr(SM_CXSCREEN))
-	h, _, _ := GetSystemMetrics(uintptr(SM_CYSCREEN))
+	w, _, _ := getSystemMetrics(uintptr(SM_CXSCREEN))
+	h, _, _ := getSystemMetrics(uintptr(SM_CYSCREEN))
 	shared.ScreenWidth, shared.ScreenHeight = int16(w), int16(h)
 }
 
