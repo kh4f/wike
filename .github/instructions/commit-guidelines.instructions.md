@@ -53,7 +53,7 @@ The type of the change. Allowed types (with commit examples):
   - style(header): add shadow for better contrast
   - style(logger): prefix run outputs with `[syncroid]` tag
 6. **chore** (maintenance change, e.g., tooling, dependencies, scripts...)
-  - chore(copilot): add initial copilot instructions
+  - chore(agent): add initial copilot instructions
   - chore(eslint): add name to global ignores
   - chore(deps): bump `vite` from ^7.2.0 to ^7.2.1
   - chore(tsconfig): update `jsx` setting to use `react-jsx`
@@ -106,31 +106,31 @@ If the commit references an Issue/PR (I’ll let you know), include a \<footer>.
 
 #### Detailed Commit Examples
 - test(cli): use `runCli` function instead of executing `dist/cli.js`
-  
+
   Remove the need for building the project before running tests.
 - fix(changelog-gen): use `breakingChanges` property instead of `subject` for `BREAKING CHANGES` section
-  
+
   Previously, when a commit had a `breakingChanges` property, the changelog would incorrectly display the commit's `subject` in the `BREAKING CHANGES` section instead of the actual `breakingChanges` content.
 - feat(config): add silent mode to suppress console output
-  
+
   - Add `logger.ts` utility with `setSilent` and `log` functions
   - Add `silent` option to `UserConfig` interface
   - Replace `console.log` calls with centralized `log` function across lifecycles
   - Initialize silent mode in main `relion` function
 - fix(root): add `suppressHydrationWarning` property to `html` tag
-  
+
   Fixes #12
   Refs #34
 - feat(config)!: add support for multiple profiles with CLI `--profile` flag
-  
+
   BREAKING CHANGE: Changed alias for 'prerelease' option to 'P' to reserve 'p' for the new '--profile' option.
-  
+
   Closes #45
 - refactor(config)!: remove `packageFiles` option and related logic
-  
+
   BREAKING CHANGE: The `packageFiles` option has been removed. The current version is now always read from `package.json`.
 - refactor(changelog-gen)!: replace `stdout` and `outputFile` options with unified `output`
-  
+
   - Update changelog generation logic to handle console output and file writing based on `output` value
   - Update tests to use new option format
   - Update type definitions
