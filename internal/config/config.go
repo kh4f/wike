@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"wike/internal/shared"
 )
 
 const path = "config.json"
@@ -62,9 +61,9 @@ var defCfg = Config{
 		{
 			Name:    "Default Rule",
 			Enabled: true,
-			Trigger: &Trigger{Kb: shared.Ptr("VK_CAPITAL")},
+			Trigger: &Trigger{Kb: Ptr("VK_CAPITAL")},
 			Action:  &Action{Kb: []string{"VK_F13"}},
-			Consume: shared.Ptr(true),
+			Consume: Ptr(true),
 		},
 	},
 }
@@ -220,14 +219,28 @@ type Region struct {
 	H int32 `json:"h"`
 }
 
-func (r *Region) Contains(pt shared.POINT) bool {
+func (r *Region) Contains(pt POINT) bool {
 	rx, ry := r.X, r.Y
 	if r.X < 0 {
-		rx += int32(shared.ScreenW)
+		rx += int32(ScreenW)
 	}
 	if r.Y < 0 {
-		ry += int32(shared.ScreenH)
+		ry += int32(ScreenH)
 	}
 	return pt.X >= rx && pt.X < rx+r.W &&
 		pt.Y >= ry && pt.Y < ry+r.H
 }
+
+func Ptr[T any](v T) *T {
+	return &v
+}
+
+type POINT struct {
+	X int32
+	Y int32
+}
+
+var (
+	ScreenW int16
+	ScreenH int16
+)
