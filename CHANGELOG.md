@@ -1,6 +1,18 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.4.0  `](https://github.com/kh4f/wike/compare/v0.3.0...v0.4.0)
+
+### &emsp; 🎁 Features
+- **Comprehensive key mappings**: expanded `VKCodeMap` to include a complete set of virtual key codes for improved key handling. [🡥](https://github.com/kh4f/wike/commit/29859f8)
+
+### &emsp; 🩹 Fixes
+- **Avoid mutating shared default config**: default config is now cloned on each request, preventing side effects from shared references. [🡥](https://github.com/kh4f/wike/commit/7148816)
+- **Improve error handling for config operations**: enhanced error handling during config parsing, saving, and reloading, with clear error messages and no silent failures. [🡥](https://github.com/kh4f/wike/commit/c3304f0)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.3.0...v0.4.0) &ensp;•&ensp; Mar 19, 2026
+
+
 ## &ensp; [` 📦 v0.3.0  `](https://github.com/kh4f/wike/compare/v0.2.0...v0.3.0)
 
 ### &emsp; 🧨 BREAKING CHANGES
