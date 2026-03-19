@@ -33,11 +33,3 @@ func InitScreenSize() {
 	h, _, _ := getSystemMetrics(uintptr(SM_CYSCREEN))
 	shared.ScreenWidth, shared.ScreenHeight = int16(w), int16(h)
 }
-
-func utf16(s string) *uint16 {
-	ptr, err := windows.UTF16PtrFromString(s)
-	if err != nil {
-		panic(err)
-	}
-	return ptr
-}
