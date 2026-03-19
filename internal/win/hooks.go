@@ -2,7 +2,6 @@ package win
 
 import (
 	"fmt"
-	"os/exec"
 	"unsafe"
 	"wike/internal/config"
 	"wike/internal/shared"
@@ -19,7 +18,7 @@ var (
 const LLKHF_INJECTED = 0x10
 
 type MSLLHOOKSTRUCT struct {
-	Pt          shared.POINT
+	Pt          shared.Point
 	MouseData   uint32
 	Flags       uint32
 	Time        uint32
@@ -85,7 +84,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			return callNextHook(nCode, wParam, lParam)
 		}
 
-		var pt shared.POINT
+		var pt shared.Point
 		GetCursorPos(uintptr(unsafe.Pointer(&pt)))
 		kbEvent := config.ParseKbEvent(info)
 
@@ -127,24 +126,6 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	}
 
 	return callNextHook(nCode, wParam, lParam)
-}
-
-func executeAction(action config.Action) {
-	fmt.Printf("Executing action: %+v\n", action)
-
-	if len(action.Kb) > 0 {
-		sendKeys(action.Kb, true, true)
-	}
-
-	if action.Cmd != nil {
-		fmt.Printf("Executing command: %s\n", *action.Cmd)
-		exec.Command(*action.Cmd).Run()
-	}
-
-	if action.Launch != nil {
-		fmt.Printf("Launching application: %s\n", *action.Launch)
-		openOrFocus(*action.Launch)
-	}
 }
 
 func callNextHook(nCode int, wParam uintptr, lParam uintptr) uintptr {

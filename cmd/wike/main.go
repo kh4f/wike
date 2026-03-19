@@ -1,9 +1,9 @@
 package main
 
 import (
-	"wike/internal/win"
+	"wike/internal/app"
 )
 
 func main() {
-	win.RunMessageLoop()
+	app.Run()
 }

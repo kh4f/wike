@@ -1,8 +1,6 @@
 package win
 
 import (
-	"time"
-	"wike/internal/config"
 	"wike/internal/shared"
 
 	"golang.org/x/sys/windows"
@@ -22,28 +20,19 @@ var (
 	GetMessageW       = user32.NewProc("GetMessageW").Call
 )
 
-func RunMessageLoop() {
-	initScreenSize()
-	config.Cfg.Load()
-
+func InstallHooks() {
 	SetWindowsHookExW(uintptr(WH_MOUSE_LL), windows.NewCallback(mHook), 0, 0)
 	SetWindowsHookExW(uintptr(WH_KEYBOARD_LL), windows.NewCallback(kHook), 0, 0)
+}
 
-	go func() {
-		ticker := time.NewTicker(5 * time.Second)
-		defer ticker.Stop()
-		for range ticker.C {
-			config.Cfg.ReloadIfModified()
-		}
-	}()
-
+func RunMessageLoop() {
 	GetMessageW(0, 0, 0, 0)
 }
 
-func initScreenSize() {
+func InitScreenSize() {
 	w, _, _ := GetSystemMetrics(uintptr(SM_CXSCREEN))
 	h, _, _ := GetSystemMetrics(uintptr(SM_CYSCREEN))
-	shared.ScreenW, shared.ScreenH = int16(w), int16(h)
+	shared.ScreenWidth, shared.ScreenHeight = int16(w), int16(h)
 }
 
 func utf16(s string) *uint16 {
