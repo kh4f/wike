@@ -1,6 +1,22 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.3.0  `](https://github.com/kh4f/wike/compare/v0.2.0...v0.3.0)
+
+### &emsp; 🧨 BREAKING CHANGES
+- **Config trigger field renames**: `Trigger.mouse` → `Trigger.m`, `Trigger.key` → `Trigger.kb`, `Trigger.event` → `Trigger.state`. [🡥](https://github.com/kh4f/wike/commit/9601917)
+- **Unified app launch/focus**: Use `Action.launch` for both opening and focusing apps; `Action.open` and manual `windowClass` are no longer supported. [🡥](https://github.com/kh4f/wike/commit/f2bf4b6)
+
+### &emsp; 🎁 Features
+- **Multiple bindings per rule**: each rule can now define multiple independent trigger-action pairs via a `bindings` array. [🡥](https://github.com/kh4f/wike/commit/3101bd5)
+
+### &emsp; 🩹 Fixes
+- **Ignore simulated events**: hooks now skip processing of injected mouse and keyboard events, preventing unintended rule triggers. [🡥](https://github.com/kh4f/wike/commit/000d18c)
+- **Negative region coordinates**: regions with negative x or y values are now properly offset from the right screen edge. [🡥](https://github.com/kh4f/wike/commit/2f17b23)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.2.0...v0.3.0) &ensp;•&ensp; Mar 19, 2026
+
+
 ## &ensp; [` 📦 v0.2.0  `](https://github.com/kh4f/wike/compare/v0.1.0...v0.2.0)
 
 ### &emsp; 🧨 BREAKING CHANGES
