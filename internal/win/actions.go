@@ -3,10 +3,10 @@ package win
 import (
 	"fmt"
 	"os/exec"
-	"wike/internal/config"
+	"wike/internal/settings"
 )
 
-func executeAction(action config.Action) {
+func executeAction(action settings.Action) {
 	fmt.Printf("Executing action: %+v\n", action)
 
 	if len(action.Kb) > 0 {

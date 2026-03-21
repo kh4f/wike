@@ -1,8 +1,8 @@
-package config
+package settings
 
-var Cfg Config
+var Current Settings
 
-var defCfg = Config{
+var defSettings = Settings{
 	Rules: []Rule{
 		{
 			Name:    "Caps Lock to F13",
@@ -14,11 +14,11 @@ var defCfg = Config{
 	},
 }
 
-func defaultConfig() Config {
-	cfg := Config{
-		Rules: make([]Rule, len(defCfg.Rules)),
+func defaultSettings() Settings {
+	cfg := Settings{
+		Rules: make([]Rule, len(defSettings.Rules)),
 	}
-	copy(cfg.Rules, defCfg.Rules)
+	copy(cfg.Rules, defSettings.Rules)
 	return cfg
 }
 

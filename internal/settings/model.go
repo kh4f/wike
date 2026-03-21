@@ -1,6 +1,6 @@
-package config
+package settings
 
-type Config struct {
+type Settings struct {
 	Rules []Rule `json:"rules"`
 }
 

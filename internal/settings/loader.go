@@ -1,4 +1,4 @@
-package config
+package settings
 
 import (
 	"encoding/json"
@@ -10,17 +10,17 @@ const configPath = "config.json"
 
 var modTime int64
 
-func (c *Config) Load() error {
+func (c *Settings) Load() error {
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			*c = defaultConfig()
+			*c = defaultSettings()
 			return c.Save()
 		}
 		return fmt.Errorf("read config: %w", err)
 	}
 
-	*c = Config{}
+	*c = Settings{}
 	if err := json.Unmarshal(data, c); err != nil {
 		return fmt.Errorf("parse config: %w", err)
 	}
@@ -35,7 +35,7 @@ func (c *Config) Load() error {
 	return nil
 }
 
-func (c *Config) Save() error {
+func (c *Settings) Save() error {
 	err := os.WriteFile(configPath, []byte(c.toJSON()), 0644)
 	if err == nil {
 		info, statErr := os.Stat(configPath)
@@ -50,7 +50,7 @@ func (c *Config) Save() error {
 	return fmt.Errorf("write config: %w", err)
 }
 
-func (c *Config) ReloadIfModified() {
+func (c *Settings) ReloadIfModified() {
 	info, err := os.Stat(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -68,7 +68,7 @@ func (c *Config) ReloadIfModified() {
 	}
 }
 
-func (c *Config) toJSON() string {
+func (c *Settings) toJSON() string {
 	data, _ := json.MarshalIndent(c, "", "  ")
 	return string(data)
 }
