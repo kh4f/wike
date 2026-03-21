@@ -1,1 +1,1 @@
-Generate a changelog entry for the upcoming release using the metadata and commit log from #file:../../RELEASE.md, following the format defined in #file:../instructions/changelog-format.instructions.md, and wrapping the output in a Markdown code block.
+Generate a changelog entry for the upcoming release using the metadata and commit log from [RELEASE.md](../../RELEASE.md), following the format defined in [changelog-format.instructions.md](../instructions/changelog-format.instructions.md), and wrapping the output in a Markdown code block.
