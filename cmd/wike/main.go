@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"time"
@@ -8,12 +8,10 @@ import (
 
 func main() {
 	win.InitScreenSize()
-	config.Settings.Load()
-
 	win.InstallHooks()
+	settings.Load()
 
 	go reloadConfigLoop()
-
 	win.RunMessageLoop()
 }
 
@@ -22,6 +20,6 @@ func reloadConfigLoop() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		config.Settings.ReloadIfModified()
+		settings.ReloadIfModified()
 	}
 }
