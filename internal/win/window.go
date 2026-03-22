@@ -21,6 +21,10 @@ var (
 	isWindowVisible     = user32.NewProc("IsWindowVisible").Call
 	showWindow          = user32.NewProc("ShowWindow").Call
 	setForegroundWindow = user32.NewProc("SetForegroundWindow").Call
+	bringWindowToTop    = user32.NewProc("BringWindowToTop").Call
+	getForegroundWindow = user32.NewProc("GetForegroundWindow").Call
+	attachThreadInput   = user32.NewProc("AttachThreadInput").Call
+	getCurrentThreadID  = kernel32.NewProc("GetCurrentThreadId").Call
 	shellExecuteW       = shell32.NewProc("ShellExecuteW").Call
 )
 
@@ -147,13 +151,23 @@ func openWindow(path string) {
 }
 
 func focusWindow(hwnd windows.HWND) {
-	if hwnd != 0 {
-		isWindow := windows.IsWindow(hwnd)
-		if isWindow {
-			showWindow(uintptr(hwnd), uintptr(SW_RESTORE))
-			setForegroundWindow(uintptr(hwnd))
+	if hwnd == 0 || !windows.IsWindow(hwnd) {
+		return
+	}
+
+	currentThreadID, _, _ := getCurrentThreadID()
+	foreground, _, _ := getForegroundWindow()
+	if foreground != 0 {
+		foregroundThreadID, _ := windows.GetWindowThreadProcessId(windows.HWND(foreground), nil)
+		if foregroundThreadID != 0 && uintptr(foregroundThreadID) != currentThreadID {
+			attachThreadInput(uintptr(foregroundThreadID), currentThreadID, 1)
+			defer attachThreadInput(uintptr(foregroundThreadID), currentThreadID, 0)
 		}
 	}
+
+	showWindow(uintptr(hwnd), uintptr(SW_RESTORE))
+	bringWindowToTop(uintptr(hwnd))
+	setForegroundWindow(uintptr(hwnd))
 }
 
 func normalizePath(p string) string {
