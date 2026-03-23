@@ -1,0 +1,24 @@
+1 ICON "assets/icon.ico"
+
+1 VERSIONINFO
+ FILEVERSION 0,4,0,0
+ PRODUCTVERSION 0,4,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileVersion", "0.4.0\0"
+            VALUE "ProductVersion", "0.4.0\0"
+            VALUE "FileDescription", "Wike\0"
+            VALUE "ProductName", "Wike\0"
+            VALUE "CompanyName", "kh4f\0"
+			VALUE "LegalCopyright", "Copyright (C) 2026 kh4f\0"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 0x04B0
+    END
+END
