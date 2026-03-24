@@ -1,5 +1,7 @@
 package config
 
+import "encoding/json"
+
 type Config struct {
 	Rules []Rule `json:"rules"`
 }
@@ -11,7 +13,7 @@ type Rule struct {
 	Trigger  *Trigger  `json:"trigger,omitempty"`
 	Action   *Action   `json:"action,omitempty"`
 	Bindings []Binding `json:"bindings,omitempty"`
-	Consume  *bool     `json:"consume,omitempty"`
+	Consume  bool      `json:"consume"`
 }
 
 type Trigger struct {
@@ -29,6 +31,18 @@ type Action struct {
 	Kb     []string `json:"kb,omitempty"`
 	Cmd    *string  `json:"cmd,omitempty"`
 	Launch *string  `json:"launch,omitempty"`
+}
+
+func (r *Rule) UnmarshalJSON(data []byte) error {
+	type ruleAlias Rule
+
+	*r = Rule{
+		Name:    "Rule UNK",
+		Enabled: true,
+		Consume: true,
+	}
+
+	return json.Unmarshal(data, (*ruleAlias)(r))
 }
 
 func (r Rule) BindingsWithPrimary() []Binding {

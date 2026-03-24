@@ -17,7 +17,7 @@ var (
 				Enabled: true,
 				Trigger: &Trigger{Kb: ptr("VK_CAPITAL")},
 				Action:  &Action{Kb: []string{"VK_F13"}},
-				Consume: ptr(true),
+				Consume: true,
 			},
 		},
 	}

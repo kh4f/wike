@@ -66,7 +66,7 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			}
 		}
 
-		if matched && rule.Consume != nil && *rule.Consume {
+		if matched && rule.Consume {
 			fmt.Println("Event consumed")
 			return 1
 		}
@@ -112,7 +112,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			}
 		}
 
-		if matched && rule.Consume != nil && *rule.Consume {
+		if matched && rule.Consume {
 			fmt.Println("Event consumed")
 			return 1
 		}
