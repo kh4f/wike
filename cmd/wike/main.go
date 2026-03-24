@@ -2,14 +2,14 @@ package main
 
 import (
 	"time"
-	"wike/internal/settings"
+	"wike/internal/config"
 	"wike/internal/win"
 )
 
 func main() {
 	win.InitScreenSize()
 	win.InstallHooks()
-	settings.Load()
+	config.Load()
 
 	go reloadConfigLoop()
 	win.RunMessageLoop()
@@ -20,6 +20,6 @@ func reloadConfigLoop() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		settings.ReloadIfModified()
+		config.ReloadIfModified()
 	}
 }

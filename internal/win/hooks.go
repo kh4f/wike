@@ -3,7 +3,7 @@ package win
 import (
 	"fmt"
 	"unsafe"
-	"wike/internal/settings"
+	"wike/internal/config"
 	"wike/internal/shared"
 )
 
@@ -40,12 +40,12 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		return callNextHook(nCode, wParam, lParam)
 	}
 
-	mouseEvent := settings.ParseMouseEvent(wParam, info.MouseData)
-	if mouseEvent.State != settings.StateMove {
+	mouseEvent := config.ParseMouseEvent(wParam, info.MouseData)
+	if mouseEvent.State != config.StateMove {
 		fmt.Printf("Mouse event: %+v (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent, wParam, info.MouseData, info.Pt.X, info.Pt.Y)
 	}
 
-	for _, rule := range settings.Current.Rules {
+	for _, rule := range config.Current.Rules {
 		if !rule.Enabled || (rule.Region != nil && !rule.Region.Contains(info.Pt)) {
 			continue
 		}
@@ -87,11 +87,11 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 	var pt shared.Point
 	getCursorPos(uintptr(unsafe.Pointer(&pt)))
-	kbEvent := settings.ParseKbEvent(uint16(info.VkCode), info.Flags)
+	kbEvent := config.ParseKbEvent(uint16(info.VkCode), info.Flags)
 
 	fmt.Printf("Kb event: %+v (wParam=0x%X; vkCode=0x%X; pt=%d:%d)\n", kbEvent, wParam, info.VkCode, pt.X, pt.Y)
 
-	for _, rule := range settings.Current.Rules {
+	for _, rule := range config.Current.Rules {
 		if !rule.Enabled || (rule.Region != nil && !rule.Region.Contains(pt)) {
 			continue
 		}
@@ -121,9 +121,9 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	return callNextHook(nCode, wParam, lParam)
 }
 
-func shouldExecuteBinding(triggerState *settings.State, eventState settings.State) bool {
+func shouldExecuteBinding(triggerState *config.State, eventState config.State) bool {
 	if triggerState == nil {
-		return eventState == settings.StateDown
+		return eventState == config.StateDown
 	}
 	return *triggerState == eventState
 }

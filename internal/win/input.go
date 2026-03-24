@@ -3,7 +3,7 @@ package win
 import (
 	"fmt"
 	"unsafe"
-	"wike/internal/settings"
+	"wike/internal/config"
 )
 
 const (
@@ -30,7 +30,7 @@ type KEYBDINPUT struct {
 func sendKeys(keys []string, press bool, release bool) {
 	var vkeys []uint16
 	for _, keyName := range keys {
-		if code, ok := settings.VKCodeMap[keyName]; ok {
+		if code, ok := config.VKCodeMap[keyName]; ok {
 			vkeys = append(vkeys, code)
 		}
 	}

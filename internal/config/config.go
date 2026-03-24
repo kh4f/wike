@@ -1,4 +1,4 @@
-package settings
+package config
 
 import (
 	"encoding/json"
@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-const filePath = "settings.json"
+const filePath = "config.json"
 
 var (
-	Current = Settings{
+	Current = Config{
 		Rules: []Rule{
 			{
 				Name:    "Caps Lock to F13",
@@ -30,20 +30,20 @@ func Load() error {
 		if os.IsNotExist(err) {
 			return Save()
 		}
-		return fmt.Errorf("read settings: %w", err)
+		return fmt.Errorf("read config: %w", err)
 	}
 
-	Current = Settings{}
+	Current = Config{}
 	if err := json.Unmarshal(data, &Current); err != nil {
-		return fmt.Errorf("parse settings: %w", err)
+		return fmt.Errorf("parse config: %w", err)
 	}
 
 	info, err := os.Stat(filePath)
 	if err != nil {
-		return fmt.Errorf("stat settings: %w", err)
+		return fmt.Errorf("stat config: %w", err)
 	}
 	modTime = info.ModTime()
-	fmt.Printf("Settings loaded: %s\n %+v", Current.toJSON(), Current)
+	fmt.Printf("Config loaded: %s\n %+v", Current.toJSON(), Current)
 	return nil
 }
 
@@ -52,13 +52,13 @@ func Save() error {
 	if err == nil {
 		info, statErr := os.Stat(filePath)
 		if statErr != nil {
-			return fmt.Errorf("stat settings after save: %w", statErr)
+			return fmt.Errorf("stat config after save: %w", statErr)
 		}
 		modTime = info.ModTime()
-		fmt.Printf("Settings saved: %s\n %+v", Current.toJSON(), Current)
+		fmt.Printf("Config saved: %s\n %+v", Current.toJSON(), Current)
 		return nil
 	}
-	return fmt.Errorf("write settings: %w", err)
+	return fmt.Errorf("write config: %w", err)
 }
 
 func ReloadIfModified() {
@@ -67,19 +67,19 @@ func ReloadIfModified() {
 		if os.IsNotExist(err) {
 			return
 		}
-		fmt.Println("Settings stat error:", err)
+		fmt.Println("Config stat error:", err)
 		return
 	}
 
 	if !info.ModTime().Equal(modTime) {
-		fmt.Println("Settings modified, reloading...")
+		fmt.Println("Config modified, reloading...")
 		if err := Load(); err != nil {
-			fmt.Println("Settings reload error:", err)
+			fmt.Println("Config reload error:", err)
 		}
 	}
 }
 
-func (s *Settings) toJSON() string {
+func (s *Config) toJSON() string {
 	data, _ := json.MarshalIndent(s, "", "  ")
 	return string(data)
 }

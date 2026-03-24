@@ -27,7 +27,7 @@ Download and extract the [latest release](https://github.com/kh4f/wike/releases/
 
 ## 🕹️ Usage
 
-Wike is configured through a single `settings.json` file.
+Wike is configured through a single `config.json` file.
 
 Below is a compact example demonstrating the main features:
 

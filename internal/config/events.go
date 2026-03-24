@@ -1,4 +1,4 @@
-package settings
+package config
 
 const (
 	WM_LBUTTONDOWN = 0x0201

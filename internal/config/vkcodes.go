@@ -1,4 +1,4 @@
-package settings
+package config
 
 var VKCodeMap = map[string]uint16{
 	"LBUTTON":  0x01,
