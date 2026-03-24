@@ -15,9 +15,9 @@ type Rule struct {
 }
 
 type Trigger struct {
-	M     *string `json:"m,omitempty"`
-	Kb    *string `json:"kb,omitempty"`
-	State *State  `json:"state,omitempty"`
+	M     *MouseButton `json:"m,omitempty"`
+	Kb    *string      `json:"kb,omitempty"`
+	State *State       `json:"state,omitempty"`
 }
 
 type Binding struct {

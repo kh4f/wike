@@ -24,45 +24,57 @@ const (
 	StateUnknown State = "UNKNOWN"
 )
 
+type MouseButton string
+
+const (
+	LMB    MouseButton = "L"     // left
+	RMB    MouseButton = "R"     // right
+	MMB    MouseButton = "M"     // middle
+	X1MB   MouseButton = "X1"    // back
+	X2MB   MouseButton = "X2"    // forward
+	MWHEEL MouseButton = "WHEEL" // wheel
+	UNK    MouseButton = "U"     // unknown
+)
+
 type MouseEvent struct {
-	Btn   string
+	Btn   MouseButton
 	State State
 }
 
 func ParseMouseEvent(wParam uintptr, mouseData uint32) MouseEvent {
 	switch wParam {
 	case WM_LBUTTONDOWN:
-		return MouseEvent{"LMB", StateDown}
+		return MouseEvent{LMB, StateDown}
 	case WM_LBUTTONUP:
-		return MouseEvent{"LMB", StateUp}
+		return MouseEvent{LMB, StateUp}
 	case WM_RBUTTONDOWN:
-		return MouseEvent{"RMB", StateDown}
+		return MouseEvent{RMB, StateDown}
 	case WM_RBUTTONUP:
-		return MouseEvent{"RMB", StateUp}
+		return MouseEvent{RMB, StateUp}
 	case WM_MBUTTONDOWN:
-		return MouseEvent{"MMB", StateDown}
+		return MouseEvent{MMB, StateDown}
 	case WM_MBUTTONUP:
-		return MouseEvent{"MMB", StateUp}
+		return MouseEvent{MMB, StateUp}
 	case WM_XBUTTONDOWN:
 		if mouseData == XBUTTON1 {
-			return MouseEvent{"X1MB", StateDown}
+			return MouseEvent{X1MB, StateDown}
 		}
-		return MouseEvent{"X2MB", StateDown}
+		return MouseEvent{X2MB, StateDown}
 	case WM_XBUTTONUP:
 		if mouseData == XBUTTON1 {
-			return MouseEvent{"X1MB", StateUp}
+			return MouseEvent{X1MB, StateUp}
 		}
-		return MouseEvent{"X2MB", StateUp}
+		return MouseEvent{X2MB, StateUp}
 	case WM_MOUSEMOVE:
-		return MouseEvent{"UNKNOWN", StateMove}
+		return MouseEvent{UNK, StateMove}
 	case WM_MOUSEWHEEL:
 		delta := int16(mouseData >> 16)
 		if delta > 0 {
-			return MouseEvent{"WHEEL", StateUp}
+			return MouseEvent{MWHEEL, StateUp}
 		}
-		return MouseEvent{"WHEEL", StateDown}
+		return MouseEvent{MWHEEL, StateDown}
 	default:
-		return MouseEvent{"UMB", StateUnknown}
+		return MouseEvent{UNK, StateUnknown}
 	}
 }
 
