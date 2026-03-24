@@ -1,39 +1,39 @@
 package config
 
-import "encoding/json"
+import "gopkg.in/yaml.v3"
 
 type Config struct {
-	Rules []Rule `json:"rules"`
+	Rules []Rule `yaml:"rules"`
 }
 
 type Rule struct {
-	Name     string    `json:"name"`
-	Enabled  bool      `json:"enabled"`
-	Region   *Region   `json:"region,omitempty"`
-	Trigger  *Trigger  `json:"trigger,omitempty"`
-	Action   *Action   `json:"action,omitempty"`
-	Bindings []Binding `json:"bindings,omitempty"`
-	Consume  bool      `json:"consume"`
+	Name     string    `yaml:"name"`
+	Enabled  bool      `yaml:"enabled"`
+	Region   *Region   `yaml:"region,omitempty"`
+	Trigger  *Trigger  `yaml:"trigger,omitempty"`
+	Action   *Action   `yaml:"action,omitempty"`
+	Bindings []Binding `yaml:"bindings,omitempty"`
+	Consume  bool      `yaml:"consume"`
 }
 
 type Trigger struct {
-	M     *MouseButton `json:"m,omitempty"`
-	Kb    *string      `json:"kb,omitempty"`
-	State *State       `json:"state,omitempty"`
+	M     *MouseButton `yaml:"m,omitempty"`
+	Kb    *string      `yaml:"kb,omitempty"`
+	State *State       `yaml:"state,omitempty"`
 }
 
 type Binding struct {
-	Trigger *Trigger `json:"trigger"`
-	Action  *Action  `json:"action"`
+	Trigger *Trigger `yaml:"trigger"`
+	Action  *Action  `yaml:"action"`
 }
 
 type Action struct {
-	Kb     []string `json:"kb,omitempty"`
-	Cmd    *string  `json:"cmd,omitempty"`
-	Launch *string  `json:"launch,omitempty"`
+	Kb     []string `yaml:"kb,omitempty"`
+	Cmd    *string  `yaml:"cmd,omitempty"`
+	Launch *string  `yaml:"launch,omitempty"`
 }
 
-func (r *Rule) UnmarshalJSON(data []byte) error {
+func (r *Rule) UnmarshalYAML(value *yaml.Node) error {
 	type ruleAlias Rule
 
 	*r = Rule{
@@ -42,7 +42,7 @@ func (r *Rule) UnmarshalJSON(data []byte) error {
 		Consume: true,
 	}
 
-	return json.Unmarshal(data, (*ruleAlias)(r))
+	return value.Decode((*ruleAlias)(r))
 }
 
 func (r Rule) BindingsWithPrimary() []Binding {

@@ -1,18 +1,19 @@
 package config
 
 import (
-	"encoding/json"
 	"wike/internal/shared"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Region struct {
-	X1 int32 `json:"x1"`
-	X2 int32 `json:"x2"`
-	Y1 int32 `json:"y1"`
-	Y2 int32 `json:"y2"`
+	X1 int32 `yaml:"x1"`
+	X2 int32 `yaml:"x2"`
+	Y1 int32 `yaml:"y1"`
+	Y2 int32 `yaml:"y2"`
 }
 
-func (r *Region) UnmarshalJSON(data []byte) error {
+func (r *Region) UnmarshalYAML(value *yaml.Node) error {
 	type regionAlias Region
 
 	*r = Region{
@@ -22,7 +23,7 @@ func (r *Region) UnmarshalJSON(data []byte) error {
 		Y2: int32(shared.ScreenHeight),
 	}
 
-	return json.Unmarshal(data, (*regionAlias)(r))
+	return value.Decode((*regionAlias)(r))
 }
 
 func (r *Region) Contains(pt shared.Point) bool {
