@@ -1,6 +1,24 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.5.0  `](https://github.com/kh4f/wike/compare/v0.4.0...v0.5.0)
+
+### &emsp; 🧨 BREAKING CHANGES
+- **Renamed config file**: the configuration file is now `config.json` instead of `settings.json` and all "settings" references are replaced with "config". [🡥](https://github.com/kh4f/wike/commit/3bd6b43)
+- **Simplified key identifiers**: `trigger.kb` values no longer require the `VK_` prefix, making configuration shorter and more user-friendly. [🡥](https://github.com/kh4f/wike/commit/1c16018)
+- **Short mouse button names**: mouse button values in config now use short identifiers (`L`, `R`, `M`, `X1`, `X2`, `WHEEL`, `U`) instead of longer names. [🡥](https://github.com/kh4f/wike/commit/e9d14ec)
+
+### &emsp; 🎁 Features
+- **Default rule values**: config fields `name`, `enabled`, and `consume` are now optional with sensible defaults: `name` = "Rule UNK", `enabled` = true, `consume` = true. [🡥](https://github.com/kh4f/wike/commit/fc0a175)
+- **App icon and version info**: added embedded icon and version information to the Windows executable. [🡥](https://github.com/kh4f/wike/commit/29458ae)
+
+### &emsp; 🩹 Fixes
+- **Consistent executable naming**: the output executable is now consistently named `Wike.exe` for clarity and adherence to naming conventions. [🡥](https://github.com/kh4f/wike/commit/b74cc03)
+- **Reliable foreground launching**: improved `Action.launch` so that if a window is already open but in the background, it is now properly brought to the front and focused. [🡥](https://github.com/kh4f/wike/commit/37804db)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.4.0...v0.5.0) &ensp;•&ensp; Mar 24, 2026
+
+
 ## &ensp; [` 📦 v0.4.0  `](https://github.com/kh4f/wike/compare/v0.3.0...v0.4.0)
 
 ### &emsp; 🎁 Features
