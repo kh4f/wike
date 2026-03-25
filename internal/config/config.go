@@ -14,11 +14,9 @@ var (
 	Current = Config{
 		Rules: []Rule{
 			{
-				Name:    "Caps Lock to F13",
-				Enabled: true,
-				Trigger: &Trigger{Kb: ptr("VK_CAPITAL")},
-				Action:  &Action{Kb: []string{"VK_F13"}},
-				Consume: true,
+				Name:    "Caps Lock → F13",
+				Trigger: &Trigger{Kb: ptr("CAPITAL")},
+				Action:  &Action{Kb: []string{"F13"}},
 			},
 		},
 	}
