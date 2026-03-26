@@ -22,7 +22,7 @@ const (
 	controlPipeName = `\\.\pipe\wike-control`
 )
 
-var banner = fmt.Sprintf(`Wike v%s`, version)
+var banner = fmt.Sprintf(`🕹️ Wike v%s`, version)
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
