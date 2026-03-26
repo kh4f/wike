@@ -67,7 +67,7 @@ rules:
     # screen region where the rule is active
     # negative values are relative to the right/bottom edges
     # defaults: x1: 0, y1: 0, x2: <screen width>, y2: <screen height>
-	region: { x1: -1, y1: -500 }
+    region: { x1: -1, y1: -500 }
 
   - name: PowerToys Always on Top
     region: { x1: -1 } # right edge of the screen
