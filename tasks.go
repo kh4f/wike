@@ -14,13 +14,15 @@ func main() {
 	switch {
 	case slices.Contains(os.Args, "-b"):
 		cmd = "windres assets/res.rc -O coff -o cmd/wike/res.syso && " +
-			"go build -o Wike.exe ./cmd/wike"
+			"cp cmd/wike/res.syso cmd/wike-daemon/res.syso && " +
+			"go build -o Wike.exe ./cmd/wike && " +
+			"go build -ldflags='-H=windowsgui' -o WikeDaemon.exe ./cmd/wike-daemon"
 	case slices.Contains(os.Args, "-r"):
 		cmd = "go run ./cmd/wike"
 	case slices.Contains(os.Args, "-f"):
 		cmd = "go fmt ./..."
 	case slices.Contains(os.Args, "-l"):
-		cmd = "bunx relion -b assets/res.rc"
+		cmd = "bunx relion -b assets/res.rc cmd/wike/main.go"
 	}
 
 	execCmd := exec.Command("bash", "-c", cmd)

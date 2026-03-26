@@ -1,9 +1,9 @@
 package win
 
 import (
-	"fmt"
 	"unsafe"
 	"wike/internal/config"
+	"wike/internal/logger"
 )
 
 const (
@@ -41,14 +41,14 @@ func sendKeys(keys []string, press bool, release bool) {
 	var inputs []INPUT
 
 	if press {
-		fmt.Printf("Simulating key press: %v\n", keys)
+		logger.Printf("Simulating key press: %v\n", keys)
 		for _, k := range vkeys {
 			inputs = append(inputs, createInput(k, true))
 		}
 	}
 
 	if release {
-		fmt.Printf("Simulating key release: %v\n", keys)
+		logger.Printf("Simulating key release: %v\n", keys)
 		for i := len(vkeys) - 1; i >= 0; i-- {
 			inputs = append(inputs, createInput(vkeys[i], false))
 		}

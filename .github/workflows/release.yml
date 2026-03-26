@@ -28,7 +28,7 @@ jobs:
         run: go run tasks.go -b
 
       - name: Create release archive
-        run: zip $ZIP Wike.exe
+        run: zip $ZIP Wike.exe WikeDaemon.exe
 
       - name: Create GitHub release
         env:

@@ -1,11 +1,11 @@
 package win
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
 	"syscall"
 	"unsafe"
+	"wike/internal/logger"
 
 	"golang.org/x/sys/windows"
 )
@@ -31,7 +31,7 @@ var (
 func openOrFocus(proc string) {
 	proc = normalizePath(proc)
 
-	fmt.Printf("Trying to find windows for process: %q\n", proc)
+	logger.Printf("Trying to find windows for process: %q\n", proc)
 
 	found := 0
 	focused := 0
@@ -46,7 +46,7 @@ func openOrFocus(proc string) {
 		title := getWindowText(hwnd)
 		found++
 		if shouldFocusWindow(hwnd, className, title) {
-			fmt.Printf("Focusing window: class=%q | title=%q | exe=%q | proc=%q | pid=%d | hwnd=0x%X\n",
+			logger.Printf("Focusing window: class=%q | title=%q | exe=%q | proc=%q | pid=%d | hwnd=0x%X\n",
 				className,
 				title,
 				exe,
@@ -60,13 +60,13 @@ func openOrFocus(proc string) {
 		return 1
 	}), nil)
 	if err != nil {
-		fmt.Println("EnumWindows err:", err)
+		logger.Println("EnumWindows err:", err)
 	}
 
-	fmt.Printf("\nMatched windows: %d, focused: %d\n", found, focused)
+	logger.Printf("Matched windows: %d, focused: %d\n", found, focused)
 
 	if focused == 0 {
-		fmt.Println("No windows matched the proc filter, opening: ", proc)
+		logger.Println("No windows matched the proc filter, opening:", proc)
 		openWindow(proc)
 		return
 	}

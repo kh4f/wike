@@ -1,9 +1,9 @@
 package win
 
 import (
-	"fmt"
 	"unsafe"
 	"wike/internal/config"
+	"wike/internal/logger"
 	"wike/internal/shared"
 )
 
@@ -42,7 +42,7 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 	mouseEvent := config.ParseMouseEvent(wParam, info.MouseData)
 	if mouseEvent.State != config.StateMove {
-		fmt.Printf("Mouse event: %+v (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent, wParam, info.MouseData, info.Pt.X, info.Pt.Y)
+		logger.Printf("Mouse event: %+v (wParam=0x%X; mouseData=0x%X; pt=%d:%d)\n", mouseEvent, wParam, info.MouseData, info.Pt.X, info.Pt.Y)
 	}
 
 	for _, rule := range config.Current.Rules {
@@ -61,13 +61,13 @@ func mHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 			matched = true
 			if shouldExecuteBinding(binding.Trigger.State, mouseEvent.State) {
-				fmt.Printf("Rule triggered: '%s'\n", rule.Name)
+				logger.Printf("Rule triggered: '%s'\n", rule.Name)
 				executeAction(*binding.Action)
 			}
 		}
 
 		if matched && rule.Consume {
-			fmt.Println("Event consumed")
+			logger.Println("Event consumed")
 			return 1
 		}
 	}
@@ -89,7 +89,7 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	getCursorPos(uintptr(unsafe.Pointer(&pt)))
 	kbEvent := config.ParseKbEvent(uint16(info.VkCode), info.Flags)
 
-	fmt.Printf("Kb event: %+v (wParam=0x%X; vkCode=0x%X; pt=%d:%d)\n", kbEvent, wParam, info.VkCode, pt.X, pt.Y)
+	logger.Printf("Kb event: %+v (wParam=0x%X; vkCode=0x%X; pt=%d:%d)\n", kbEvent, wParam, info.VkCode, pt.X, pt.Y)
 
 	for _, rule := range config.Current.Rules {
 		if !rule.Enabled || (rule.Region != nil && !rule.Region.Contains(pt)) {
@@ -107,13 +107,13 @@ func kHook(nCode int, wParam uintptr, lParam uintptr) uintptr {
 
 			matched = true
 			if shouldExecuteBinding(binding.Trigger.State, kbEvent.Event) {
-				fmt.Printf("Rule triggered: '%s'\n", rule.Name)
+				logger.Printf("Rule triggered: '%s'\n", rule.Name)
 				executeAction(*binding.Action)
 			}
 		}
 
 		if matched && rule.Consume {
-			fmt.Println("Event consumed")
+			logger.Println("Event consumed")
 			return 1
 		}
 	}

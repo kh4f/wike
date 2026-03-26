@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"wike/internal/logger"
 
 	"gopkg.in/yaml.v3"
 )
@@ -42,7 +43,7 @@ func Load() error {
 		return fmt.Errorf("stat config: %w", err)
 	}
 	modTime = info.ModTime()
-	fmt.Printf("Config loaded: %s\n %+v", Current.toYAML(), Current)
+	logger.Printf("Config loaded:\n%s%+v\n", Current.toYAML(), Current)
 	return nil
 }
 
@@ -54,7 +55,7 @@ func Save() error {
 			return fmt.Errorf("stat config after save: %w", statErr)
 		}
 		modTime = info.ModTime()
-		fmt.Printf("Config saved: %s\n %+v", Current.toYAML(), Current)
+		logger.Printf("Config saved:\n%s%+v\n", Current.toYAML(), Current)
 		return nil
 	}
 	return fmt.Errorf("write config: %w", err)
@@ -66,14 +67,14 @@ func ReloadIfModified() {
 		if os.IsNotExist(err) {
 			return
 		}
-		fmt.Println("Config stat error:", err)
+		logger.Println("Config stat error:", err)
 		return
 	}
 
 	if !info.ModTime().Equal(modTime) {
-		fmt.Println("Config modified, reloading...")
+		logger.Println("Config modified, reloading...")
 		if err := Load(); err != nil {
-			fmt.Println("Config reload error:", err)
+			logger.Println("Config reload error:", err)
 		}
 	}
 }

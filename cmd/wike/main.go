@@ -1,25 +1,89 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"os/exec"
+	"strings"
 	"time"
-	"wike/internal/config"
-	"wike/internal/win"
+
+	"golang.org/x/sys/windows"
 )
 
-func main() {
-	win.InitScreenSize()
-	win.InstallHooks()
-	config.Load()
+const (
+	version  = "0.5.0"
+	pipeName = `\\.\pipe\wike`
+)
 
-	go reloadConfigLoop()
-	win.RunMessageLoop()
+var banner = fmt.Sprintf(`Wike v%s`, version)
+
+func main() {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		clearConsole()
+		printMenu()
+
+		choice, _ := reader.ReadString('\n')
+
+		switch strings.TrimSpace(choice) {
+		case "1":
+			path, _ := windows.UTF16PtrFromString(pipeName)
+			handle, _ := windows.CreateFile(
+				path,
+				windows.GENERIC_READ,
+				0,
+				nil,
+				windows.OPEN_EXISTING,
+				windows.FILE_ATTRIBUTE_NORMAL,
+				0,
+			)
+			if handle == windows.InvalidHandle {
+				fmt.Println("Daemon is not running")
+				time.Sleep(time.Second)
+				continue
+			}
+
+			clearConsole()
+			showLogs()
+
+			pipe := os.NewFile(uintptr(handle), pipeName)
+
+			go func() {
+				io.Copy(os.Stdout, pipe)
+			}()
+
+			reader.ReadString('\n')
+			pipe.Close()
+		case "2":
+			return
+		}
+	}
 }
 
-func reloadConfigLoop() {
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
+func printMenu() {
+	fmt.Printf(`%s
 
-	for range ticker.C {
-		config.ReloadIfModified()
-	}
+Actions:
+  1) Monitor events
+  2) Exit
+
+> `, banner)
+}
+
+func showLogs() {
+	fmt.Printf(`%s
+
+Monitoring events...
+(Enter to go back)
+
+`, banner)
+}
+
+func clearConsole() {
+	cmd := exec.Command("cmd", "/c", "cls")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
