@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
 )
 
 const (
@@ -39,8 +40,13 @@ func main() {
 			} else {
 				startDaemon()
 			}
-			time.Sleep(500 * time.Millisecond)
 		case "2":
+			if inStartup() {
+				removeFromStartup()
+			} else {
+				addToStartup()
+			}
+		case "3":
 			handle := openPipe(logPipeName, windows.GENERIC_READ)
 			if handle == windows.InvalidHandle {
 				fmt.Println("Daemon not running")
@@ -59,7 +65,7 @@ func main() {
 
 			reader.ReadString('\n')
 			pipe.Close()
-		case "3":
+		case "4":
 			return
 		}
 	}
@@ -71,14 +77,20 @@ func printMenu() {
 		daemonAction = "Stop daemon"
 	}
 
+	startupAction := "Add to startup"
+	if inStartup() {
+		startupAction = "Remove from startup"
+	}
+
 	fmt.Printf(`%s
 
 Actions:
   1) %s
-  2) Monitor events
-  3) Exit
+  2) %s
+  3) Monitor events
+  4) Exit
 
-> `, banner, daemonAction)
+> `, banner, daemonAction, startupAction)
 }
 
 func showLogs() {
@@ -169,4 +181,54 @@ func stopDaemon() {
 
 	fmt.Println("Daemon stopped")
 	time.Sleep(500 * time.Millisecond)
+}
+
+func addToStartup() {
+	exePath, err := os.Executable()
+	if err != nil {
+		return
+	}
+
+	daemonPath := filepath.Join(filepath.Dir(exePath), daemonFileName)
+
+	key, _, err := registry.CreateKey(
+		registry.CURRENT_USER,
+		`Software\Microsoft\Windows\CurrentVersion\Run`,
+		registry.SET_VALUE,
+	)
+	if err != nil {
+		return
+	}
+	defer key.Close()
+
+	key.SetStringValue("Wike", "\""+daemonPath+"\"")
+}
+
+func removeFromStartup() {
+	key, err := registry.OpenKey(
+		registry.CURRENT_USER,
+		`Software\Microsoft\Windows\CurrentVersion\Run`,
+		registry.SET_VALUE,
+	)
+	if err != nil {
+		return
+	}
+	defer key.Close()
+
+	key.DeleteValue("Wike")
+}
+
+func inStartup() bool {
+	key, err := registry.OpenKey(
+		registry.CURRENT_USER,
+		`Software\Microsoft\Windows\CurrentVersion\Run`,
+		registry.QUERY_VALUE,
+	)
+	if err != nil {
+		return false
+	}
+	defer key.Close()
+
+	_, _, err = key.GetStringValue("Wike")
+	return err == nil
 }
