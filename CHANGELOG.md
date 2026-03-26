@@ -1,6 +1,20 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.6.0  `](https://github.com/kh4f/wike/compare/v0.5.0...v0.6.0)
+
+### &emsp; 🧨 BREAKING CHANGES
+- **YAML config format**: configuration file is now `config.yml` using YAML syntax instead of `config.json`. [🡥](https://github.com/kh4f/wike/commit/820bd30)
+- **Region structure redesign**: `region` now uses `x1`, `x2`, `y1`, and `y2` bounds (all optional) instead of `x`, `y`, `w`, `h`. Defaults: `x1`/`y1` = 0, `x2`/`y2` = screen size. Coordinates are auto-sorted if needed. [🡥](https://github.com/kh4f/wike/commit/cca27d5)
+- **Daemon split**: daemon logic moved to a dedicated `WikeDaemon.exe` binary; CLI menu added for real-time log monitoring. [🡥](https://github.com/kh4f/wike/commit/3ede33e)
+
+### &emsp; 🎁 Features
+- **Startup management from CLI**: added options to register or unregister the app in Windows startup directly from the CLI. [🡥](https://github.com/kh4f/wike/commit/2ab885e)
+- **Daemon lifecycle control**: users can now start or stop the background daemon using the CLI menu. [🡥](https://github.com/kh4f/wike/commit/0a8bc33)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.5.0...v0.6.0) &ensp;•&ensp; Mar 26, 2026
+
+
 ## &ensp; [` 📦 v0.5.0  `](https://github.com/kh4f/wike/compare/v0.4.0...v0.5.0)
 
 ### &emsp; 🧨 BREAKING CHANGES
