@@ -1,6 +1,14 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.6.1  `](https://github.com/kh4f/wike/compare/v0.6.0...v0.6.1)
+
+### &emsp; 🩹 Fixes
+- **Reliable startup config loading**: the daemon now always reads `config.yml` from the executable directory, so rules no longer stop triggering when `WikeDaemon.exe` is launched from Windows startup with a different working directory. [🡥](https://github.com/kh4f/wike/commit/8a57f70)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.6.0...v0.6.1) &ensp;•&ensp; Apr 6, 2026
+
+
 ## &ensp; [` 📦 v0.6.0  `](https://github.com/kh4f/wike/compare/v0.5.0...v0.6.0)
 
 ### &emsp; 🧨 BREAKING CHANGES
