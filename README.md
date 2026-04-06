@@ -77,9 +77,3 @@ rules:
 
 - Supported keyboard keys: [Virtual-Key Codes](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes)
 - Supported mouse inputs: `L`, `R`, `M`, `X1`, `X2`, `WHEEL` (with `state: UP/DOWN`)
-
-<br>
-
-<div align="center">
-  <b>MIT License © 2026 <a href="https://github.com/kh4f">kh4f</a></b>
-</div>
