@@ -3,13 +3,14 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 	"wike/internal/logger"
 
 	"gopkg.in/yaml.v3"
 )
 
-const filePath = "config.yml"
+const fileName = "config.yml"
 
 var (
 	Current = Config{
@@ -25,6 +26,7 @@ var (
 )
 
 func Load() error {
+	filePath := configFilePath()
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -43,11 +45,12 @@ func Load() error {
 		return fmt.Errorf("stat config: %w", err)
 	}
 	modTime = info.ModTime()
-	logger.Printf("Config loaded:\n%s%+v\n", Current.toYAML(), Current)
+	logger.Printf("Config loaded from %s:\n%s%+v\n", filePath, Current.toYAML(), Current)
 	return nil
 }
 
 func Save() error {
+	filePath := configFilePath()
 	err := os.WriteFile(filePath, []byte(Current.toYAML()), 0644)
 	if err == nil {
 		info, statErr := os.Stat(filePath)
@@ -55,13 +58,14 @@ func Save() error {
 			return fmt.Errorf("stat config after save: %w", statErr)
 		}
 		modTime = info.ModTime()
-		logger.Printf("Config saved:\n%s%+v\n", Current.toYAML(), Current)
+		logger.Printf("Config saved to %s:\n%s%+v\n", filePath, Current.toYAML(), Current)
 		return nil
 	}
 	return fmt.Errorf("write config: %w", err)
 }
 
 func ReloadIfModified() {
+	filePath := configFilePath()
 	info, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -82,6 +86,14 @@ func ReloadIfModified() {
 func (s *Config) toYAML() string {
 	data, _ := yaml.Marshal(s)
 	return string(data)
+}
+
+func configFilePath() string {
+	exePath, err := os.Executable()
+	if err != nil {
+		return fileName
+	}
+	return filepath.Join(filepath.Dir(exePath), fileName)
 }
 
 func ptr[T any](v T) *T {

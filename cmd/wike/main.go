@@ -157,6 +157,7 @@ func startDaemon() {
 	exePath, _ := os.Executable()
 	daemonPath := filepath.Join(filepath.Dir(exePath), daemonFileName)
 	cmd := exec.Command(daemonPath)
+	cmd.Dir = filepath.Dir(daemonPath)
 
 	if err := cmd.Start(); err != nil {
 		fmt.Println("Failed to start daemon:", err)
