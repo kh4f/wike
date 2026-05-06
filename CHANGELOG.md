@@ -1,6 +1,14 @@
 # Changelog
 
 
+## &ensp; [` 📦 v0.6.2  `](https://github.com/kh4f/wike/compare/v0.6.1...v0.6.2)
+
+### &emsp; 🎨 Style
+- **Updated app icon**: the application icon now aligns with the new brand identity. [🡥](https://github.com/kh4f/wike/commit/2e02248)
+
+##### &emsp;&emsp; [Full Changelog](https://github.com/kh4f/wike/compare/v0.6.1...v0.6.2) &ensp;•&ensp; May 6, 2026
+
+
 ## &ensp; [` 📦 v0.6.1  `](https://github.com/kh4f/wike/compare/v0.6.0...v0.6.1)
 
 ### &emsp; 🩹 Fixes

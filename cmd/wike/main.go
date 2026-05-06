@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	version         = "0.6.1"
+	version         = "0.6.2"
 	daemonFileName  = "WikeDaemon.exe"
 	logPipeName     = `\\.\pipe\wike-events`
 	controlPipeName = `\\.\pipe\wike-control`
