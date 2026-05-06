@@ -1,38 +1,39 @@
 <div align="center">
-	<img alt="logo" src="assets/logo.png">
+	<picture>
+		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kh4f/wike/refs/heads/assets/logo-dark.png">
+		<img alt="logo" src="https://raw.githubusercontent.com/kh4f/wike/refs/heads/assets/logo-light.png">
+	</picture>
 	<br>
-	<a href="https://github.com/kh4f/wike/releases"><img src="https://img.shields.io/github/v/tag/kh4f/wike?label=%F0%9F%8F%B7%EF%B8%8F%20Release&style=flat-square&color=ECE4DF&labelColor=303145" alt="version"/></a>&nbsp;
-	<a href="https://github.com/kh4f/wike/issues?q=is%3Aissue+is%3Aopen+label%3Abug"><img src="https://img.shields.io/github/issues/kh4f/wike/bug?label=%F0%9F%90%9B%20Bugs&style=flat-square&color=ECE4DF&labelColor=303145" alt="bugs"></a>&nbsp;
-	<a href="https://github.com/kh4f/wike/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kh4f/wike?style=flat-square&label=%F0%9F%9B%A1%EF%B8%8F%20License&color=ECE4DF&labelColor=303144" alt="license"></a>&nbsp;
-	<br><br>
 	A fast, lightweight, and flexible <b>hotkey manager</b> for Windows
 	<br><br>
-	<b>
+	<p>
+		<a href="https://github.com/kh4f/wike/releases"><img src="https://img.shields.io/github/v/tag/kh4f/wike?label=%F0%9F%8F%B7%EF%B8%8F%20Release&style=flat-square&color=CCCCCC&labelColor=CE2A11" alt="version"/></a>&nbsp;
+		<a href="https://github.com/kh4f/wike/issues?q=is%3Aissue+is%3Aopen+label%3Abug"><img src="https://img.shields.io/github/issues/kh4f/wike/bug?label=%F0%9F%90%9B%20Bugs&style=flat-square&color=CCCCCC&labelColor=CE2A11" alt="bugs"></a>&nbsp;
+		<a href="https://github.com/kh4f/wike/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kh4f/wike?style=flat-square&label=%F0%9F%9B%A1%EF%B8%8F%20License&color=CCCCCC&labelColor=CE2A11" alt="license"></a>
+	</p>
+	<p><b>
 		<a href="#-features">Features</a>&nbsp; •&nbsp;
 		<a href="#-installation">Installation</a>&nbsp; •&nbsp;
 		<a href="#%EF%B8%8F-usage">Usage</a>&nbsp; •&nbsp;
 		<a href="#%EF%B8%8F-configuration">Configuration</a>
-	</b>
+	</b></p>
 </div>
 
 ## 🔥 Features
-
 - Keyboard & mouse remapping
 - Region‑aware hotkeys
 - Multi‑key actions & app launching
+- Simple YAML-based configuration
 - Launch at Windows startup
-- Simple YAML configuration
 
 ## 📥 Installation
-
 Download and extract the [latest release](https://github.com/kh4f/wike/releases/latest).
 
 ## 🕹️ Usage
-
 Control the app from the command line with `Wike.exe`:
 
 ```
-🕹️ Wike v0.5.0
+Wike v0.5.0
 
 Actions:
   1) Start daemon
@@ -40,13 +41,11 @@ Actions:
   3) Monitor events
   4) Exit
 ```
-
 - `Start daemon` launches `WikeDaemon.exe` in the background to enable the hotkeys.
 - `Add to startup` enables automatic launch on system startup.
 - `Monitor events` is useful for debugging - logs all input events and triggered rules in real time.
 
 ## ⚙️ Configuration
-
 Wike uses a single `config.yml` file for configuration. Below is a compact example demonstrating the main features:
 
 ```yaml
@@ -73,6 +72,11 @@ rules:
     region: { x1: -1 } # right edge of the screen
     trigger: { m: X1 } # mouse back button
     action: { kb: [LWIN, LCONTROL, LSHIFT, F1] } # send a key combination
+
+  - name: Quick Explorer
+    region: { x1: 1260, x2: 1500, y1: -2 }
+    trigger: { m: L }
+    action: { launch: explorer.exe } # launch an app
 ```
 
 - Supported keyboard keys: [Virtual-Key Codes](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes)
